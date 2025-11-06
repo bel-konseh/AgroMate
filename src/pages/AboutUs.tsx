@@ -1,12 +1,14 @@
 
 function AboutUs() {
   return (
-    <main className='flex justify-center items-center lg:h-[600px] bg-[#387718]'>
-      <div className='lg:h-[494px] lg:w-[1216px] flex flex-col bg-red-300/10 lg:flex-row text-white w-4/5]'>
+    <main className='flex justify-center items-center lg:h-[600px] bg-[url("src/assets/images/about-bg.png")]  relative bg-cover'>
+     
+      <div className="absolute inset-0 bg-[url('src/assets/images/about-gradient.png')] "></div>
+      <div className='lg:h-[494px] lg:w-[1216px] flex flex-col bg-red-300/10 lg:flex-row text-white w-4/5] z-10'>
         <div className='p-5 lg:w-1/2 lg:p-20'>
           <h2 className='font-bold text-3xl'>Who are we?</h2>
         </div>
-        <div className='lg:w-1/2 p-5 lg:text-[16px]'>
+        <div className='lg:w-1/2 p-3 lg:text-[16px]'>
           <p>Agromate is your gateway to a better food system in Bamenda. We're a passionate team on a mission to connect you directly with local farmers, bringing the freshest produce straight from farm to fridge</p>
 
           <h2 className='font-semibold text-xl mb-2.5'>Why We Do It</h2>

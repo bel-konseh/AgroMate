@@ -4,27 +4,27 @@ import ButtonGreen from "./ButtonGreen"
 
 const ContactCard = () => {
   return (
-    <div className=" w-[1187px] flex flex-col h-[480px] border border-blue-700 bg-white md:flex-row p-2 justify-around items-center mb-5">
+    <div className="lg:w-[1187px] flex flex-col lg:h-[480px] border border-blue-700 bg-white md:flex-row p-2 justify-around items-center mb-5 z-10">
       <div className="w-[310px] h-[397px] lg:w-[491px] lg:h-[460px] text-white bg-[#387718] flex flex-col p-10 justify-around">
-        <div className="">
+        <div className="text-center lg:text-left mb-3.5 lg:mb-auto">
             <h2>Contact Information</h2>
             <p>Say something to start a life chat</p>
         </div>
         <ul className="flex flex-col gap-8">
             <li>
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col lg:flex-row gap-4 items-center">
                     <img src="" className="w-6 h-6 border border-white" alt="" />
                     <a href="tel:+2376555xxx"> +237 678*******</a>
                 </div>
             </li>
             <li>
-                <div className="flex gap-4 items-center">
+                <div className="flex flex-col lg:flex-row gap-4 items-center">
                     <img src="" className="w-6 h-6 border border-white" alt="" />
                     <a href="mailto: "> sales@agromate.online</a>
                 </div>
             </li>
-                        <li>
-                <div className="flex gap-4 items-center">
+            <li>
+                <div className="flex flex-col lg:flex-row gap-4 items-center">
                     <img src="" className="w-6 h-6 border border-white" alt="" />
                     <a href="mailto: ">Bambili, Bamenda Cameroon</a>
                 </div>
