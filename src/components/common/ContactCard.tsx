@@ -1,4 +1,4 @@
-import ButtonGreen from "./ButtonGreen"
+import ButtonGreen from "../ButtonGreen"
 
 
 
