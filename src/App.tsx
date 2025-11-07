@@ -4,7 +4,7 @@ import Landing from "./pages/Landing"
 import Layout from "./pages/Layout"
 import AboutUs from "./pages/AboutUs"
 import Contact from "./pages/Contact"
-import ProductDetails from "./pages/Details"
+import Details from "./pages/Details"
 import Checkout from "./pages/Checkout"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
@@ -23,7 +23,7 @@ const App = ()=>{
         <Route path="dashboard/" element = {<DashBoard />} />
         <Route path="about/" element = {<AboutUs />} />
         <Route path="contact/" element = {<Contact />} />
-        <Route path="details/" element = {<ProductDetails />} />
+        <Route path="details/" element = {<Details />} />
         <Route path="checkout/" element = {<Checkout />} />
         <Route path="login/" element = {<Login />} />
         <Route path="signup/" element = {<Signup />} />

@@ -1,12 +1,13 @@
 
 
+import ProductDetails from '../components/products/ProductDetails'
 
-const ProductDetails = () => {
+const Details = () => {
   return (
     <div>
-      Product Details
+      <ProductDetails />
     </div>
   )
 }
 
-export default ProductDetails
+export default Details

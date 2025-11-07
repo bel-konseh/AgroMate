@@ -136,3 +136,22 @@ export interface Cart {
   items: CartItem[];
   updatedAt: Date;
 }
+//Category Interface
+export interface Category {
+  id: number;
+  name: string;
+  tag: string;
+  region: string;
+  supplier: string;
+  description: string;
+  image: string;
+}
+
+
+//Service interface
+export interface Service {
+  id: number;
+  name: string;
+  description: string;
+  icon: string;
+}
