@@ -8,8 +8,11 @@ import ProductDetails from "./pages/Details"
 import Checkout from "./pages/Checkout"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
-import DashBoardDeliveryPerson from "./pages/DashBoardDeliveryPerson"
 import Shop from "./pages/Shop"
+import FarmerDashboardPage from "./components/farmer/FarmerDashboard"
+import BuyerDashboardPage from "./components/buyer/BuyerDashboard"
+import DeliveryDashboardPage from "./components/delivery/DeliveryDashboard"
+import OrdersPage from "./pages/dashboard/OrdersPage"
 
 const App = ()=>{
 
@@ -25,7 +28,12 @@ const App = ()=>{
         <Route path="login/" element = {<Login />} />
         <Route path="signup/" element = {<Signup />} />
         <Route path="shop/" element = {<Shop />} />
-        <Route path="dashboard_delivery/" element = {<DashBoardDeliveryPerson/>} />
+        
+        {/* routes for the dashboard */}
+        <Route path="dashboard/farmer" element={<FarmerDashboardPage />} />
+        <Route path="dashboard/buyer" element={<BuyerDashboardPage />} />
+        <Route path="dashboard/delivery" element={<DeliveryDashboardPage />} />
+        <Route path="dashboard/orders" element={<OrdersPage />} />
 
       </Route>
     )
