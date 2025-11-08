@@ -3,6 +3,7 @@ import { Plus } from 'lucide-react'; // Changed back to Plus for Add Product
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Button from '../../components/common/Button';
 import { formatCurrency } from '../../utils/helpers';
+import { Link } from 'react-router-dom';
 
 interface Product {
   id: string;
@@ -103,7 +104,7 @@ const FarmerDashboardPage: React.FC = () => {
                     leftIcon={<Plus className="h-6 w-6" />} // CORRECTED ICON
                     className="w-full bg-gradient-to-r from-green-700 to-lime-500 text-white py-3 text-lg font-semibold h-14" 
                 >
-                    Add Product
+                    <Link to="/addproducts">Add Product</Link> 
                 </Button>
             </div>
 
@@ -111,7 +112,7 @@ const FarmerDashboardPage: React.FC = () => {
 
         {/* All Products Table Header */}
         <div className="pt-4">
-            <h3 className="text-lg font-semibold text-gray-900">All Products</h3> {/* CORRECTED LABEL */}
+            <h3 className="text-lg font-semibold text-gray-900">All Products</h3> 
         </div>
 
         {/* All Products Table */}

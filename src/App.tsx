@@ -13,6 +13,7 @@ import FarmerDashboardPage from "./components/farmer/FarmerDashboard"
 import BuyerDashboardPage from "./components/buyer/BuyerDashboard"
 import DeliveryDashboardPage from "./components/delivery/DeliveryDashboard"
 import OrdersPage from "./pages/dashboard/OrdersPage"
+import AddProducts from "./components/farmer/AddProducts"
 
 const App = ()=>{
 
@@ -34,6 +35,10 @@ const App = ()=>{
         <Route path="dashboard/buyer" element={<BuyerDashboardPage />} />
         <Route path="dashboard/delivery" element={<DeliveryDashboardPage />} />
         <Route path="dashboard/orders" element={<OrdersPage />} />
+
+        {/* routes for products */}
+        <Route path="addproducts" element={<AddProducts />} />
+        <Route path="addproducts/:id" element={<AddProducts />} />
 
       </Route>
     )
