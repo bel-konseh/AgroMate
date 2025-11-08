@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import StatusBadge from '../../components/common/StatusBadge';
 import { formatCurrency, formatDate, getInitials } from '../../utils/helpers';
@@ -20,7 +19,7 @@ interface Order {
 }
 
 const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
-  const navigate = useNavigate();
+//   const navigate = useNavigate();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
 
   // Mock orders data
@@ -79,14 +78,6 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
     ? orders 
     : orders.filter(order => order.status === selectedStatus);
 
-  const statusOptions = [
-    { label: 'All', value: 'all' },
-    { label: 'Pending', value: 'pending' },
-    { label: 'Confirmed', value: 'confirmed' },
-    { label: 'Delivering', value: 'delivering' },
-    { label: 'Delivered', value: 'delivered' },
-    { label: 'Cancelled', value: 'cancelled' },
-  ];
 
   return (
     <DashboardLayout userType={userType}>
@@ -94,24 +85,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-            
-            {/* Status Filter */}
-            <div className="flex items-center space-x-2 overflow-x-auto pb-2 sm:pb-0">
-              {statusOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSelectedStatus(option.value)}
-                  className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                    selectedStatus === option.value
-                      ? 'bg-[--color-primary] text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
+            <h1 className="text-2xl font-bold text-gray-900">All Orders</h1>
           </div>
 
           {/* Orders Table */}
@@ -135,9 +109,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
@@ -166,15 +138,6 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center">
                         <StatusBadge status={order.status} />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                         <button 
-                          onClick={() => navigate(`/dashboard/orders/${order.id}`)}
-                          className="inline-flex items-center space-x-1 text-[--color-primary] hover:text-[--color-primary-dark] text-sm font-medium transition-colors"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span>View</span>
-                        </button>
                       </td>
                     </tr>
                   ))}

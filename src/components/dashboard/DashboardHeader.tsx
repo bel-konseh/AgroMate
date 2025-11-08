@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, Bell, ChevronDown } from 'lucide-react';
-import { getInitials } from '../../utils/helpers';
+const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
 
 interface DashboardHeaderProps {
   userName?: string;
   userAvatar?: string;
-  onMenuClick?: () => void;
+  // onMenuClick is now used for both mobile toggle and desktop collapse
+  onMenuClick?: () => void; 
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
@@ -16,16 +18,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-20">
-      {/* Mobile Menu Button */}
+      {/* Menu Button - Visible on ALL screens (including desktop) now */}
       <button 
         onClick={onMenuClick}
         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+        aria-label="Toggle main menu"
       >
         <Menu className="h-6 w-6 text-gray-600" />
       </button>
-
-      {/* Empty space for alignment on desktop */}
-      <div className="hidden lg:block flex-1" />
 
       {/* Right Section */}
       <div className="flex items-center space-x-4">
