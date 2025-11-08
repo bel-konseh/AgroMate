@@ -3,9 +3,9 @@
 
 const Checkout = () => {
   return (
-    <div>
+    <main className="mt-16 md:mt-20">
       Checkout
-    </div>
+    </main>
   )
 }
 

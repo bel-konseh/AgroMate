@@ -4,7 +4,7 @@ import Hero from "../components/Hero"
 
 function Landing() {
   return (
-    <main className="w-full">
+    <main className="w-full mt-16 md:mt-20">
       <Hero />
       <div className=" w-full h-[523px] bg-[#B6CD27] flex flex-col justify-center items-center p-12">
         <div className="flex flex-col md:flex-row h-[387px] w-1088px] justify-center items-center">

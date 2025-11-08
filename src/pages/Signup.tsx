@@ -4,7 +4,7 @@ import SignUpForm from "../components/Authentication/SignUpForm"
 
 const Signup = () => {
   return (
-    <main>
+    <main className="mt-16 md:mt-20">
       <SignUpForm />
     </main>
   )

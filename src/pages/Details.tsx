@@ -4,9 +4,9 @@ import ProductDetails from '../components/products/ProductDetails'
 
 const Details = () => {
   return (
-    <div>
+    <main className='mt-16 md:mt-20'>
       <ProductDetails />
-    </div>
+    </main>
   )
 }
 

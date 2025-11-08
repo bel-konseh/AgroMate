@@ -1,7 +1,7 @@
 
 function AboutUs() {
   return (
-    <main className='flex justify-center items-center lg:h-[600px] bg-[url("src/assets/images/about-bg.png")]  relative bg-cover'>
+    <main className='flex mt-16 md:mt-20 justify-center items-center lg:h-[600px] bg-[url("src/assets/images/about-bg.png")]  relative bg-cover'>
      
       <div className="absolute inset-0 bg-[url('src/assets/images/about-gradient.png')] "></div>
       <div className='lg:h-[494px] lg:w-[1216px] flex flex-col bg-red-300/10 lg:flex-row text-white w-4/5] z-10'>
