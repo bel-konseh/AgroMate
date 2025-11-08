@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+/* Add this to your global CSS file (e.g., index.css or globals.css) */
+.hero-curve {
+    /* Defines a polygon shape. The critical points are the bottom left and bottom right corners. */
+    /* We pull the bottom left corner up to create the diagonal slant. */
+    clip-path: polygon(0 0, 100% 0, 100% 90%, 0% 100%); 
+  }
+  
+  /* For better responsiveness and to ensure the curve looks good on smaller screens, 
+     we can adjust the bottom points using media queries if needed, 
+     but the generic clip-path above provides the main diagonal. */
+  @media (min-width: 1024px) { /* Adjust for large screens (lg:) */
+    .hero-curve-lg {
+      clip-path: polygon(0 0, 100% 0, 100% 95%, 0% 100%);
+    }
+  }
