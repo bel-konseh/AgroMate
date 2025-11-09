@@ -8,9 +8,9 @@ const LoginForm = () => {
 
   const [email, setEmail] = useState<string>("")
   const [password,setPassword] = useState<string>("")
-  // const handleLogin = ():void =>{
+  const handleLogin = ():void =>{
 
-  // }
+  }
 
   return (
     
@@ -27,7 +27,7 @@ const LoginForm = () => {
         </div>
         <Link  className="mb-20  w-full text-right text-[#387718]/80 " to={'#'} >Forgot password?</Link>
         
-        <ButtonGreen title='Login'/>
+        <ButtonGreen onClick={handleLogin} title='Login'/>
         <p className='text-sm mt-5'>No account? <Link className='text-[#387718]/80' to={"/signup"}>please signup</Link></p>
       </form>
     </div>

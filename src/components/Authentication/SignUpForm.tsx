@@ -9,9 +9,9 @@ const SignUpForm = () => {
   const [password, setPassword] = useState<string>("")
   const [userType, setUserType] = useState<string>("Buyer")
 
-  // const handleSignUp =()=>{
+  const handleSignUp =()=>{
 
-  // }
+  }
 return (
     <div className='flex lg:w-[80%] flex-col lg:flex-row lg:justify-center  gap-5  items-center bg-[#ffffff]/70 p-5 overflow-clip'>
       <img src="/src/assets/images/login-bg.png" alt="" className='w-[729px] h-[486px] lg:w-[50%] lg:h-[575px] object-cover'/>
@@ -37,7 +37,7 @@ return (
         
         
         <div className=' mt-20'>
-            <ButtonGreen title='SignUp'/>
+            <ButtonGreen onClick={handleSignUp} title='SignUp'/>
         </div>
         <p className='text-sm mt-5'>Already have an account? <Link className='text-[#387718]/80' to={"/login"}>Login</Link></p>
       </form>

@@ -22,7 +22,7 @@
 
 
 import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation,useNavigate } from "react-router-dom";
 import ButtonGreen from "./ButtonGreen";
 
 const Header = () => {
@@ -30,9 +30,15 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const {pathname} = useLocation();
+  const navigate = useNavigate();
   
   if(pathname.toLowerCase().includes("dashboard")) return null;
 
+  // Function to toggle the mobile menu
+  const goToSignUp = () => {
+    navigate("/signup");
+    
+  };
   
 
   const toggleMobileMenu = () => {
@@ -81,7 +87,7 @@ const Header = () => {
 
         {/* Desktop Register Button */}
         <div className="hidden md:block">
-          <ButtonGreen title="Register Now" />
+          <ButtonGreen onClick={goToSignUp} title="Register Now" />
         </div>
 
         {/* Mobile Menu Button */}
@@ -132,7 +138,7 @@ const Header = () => {
 
             {/* Mobile Register Button */}
             <div className="p-2 flex items-center justify-center w-full">
-              <ButtonGreen title="Register Now"  />
+              <ButtonGreen onClick={goToSignUp} title="Register Now"  />
             </div>
           </div>
         </div>
