@@ -51,8 +51,14 @@ const App = ()=>{
 
 
         {/* routes for products */}
-        <Route path="addproducts" element={<AddProducts />} />
-        <Route path="addproducts/:id" element={<AddProducts />} />
+        <Route path="dashboard/addproduct" element={<AddProducts />} />
+        <Route path="dashboard/addproduct/:id" element={<AddProducts />} />
+
+
+        <Route path="/dashboard/orders" element={<OrdersPage userType="farmer" />} />
+
+        
+        
 
       </Route>
     )
