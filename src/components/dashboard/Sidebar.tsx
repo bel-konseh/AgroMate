@@ -1,13 +1,11 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ShoppingBag, MessageSquare, Wallet, Bell, Settings, Menu } from 'lucide-react'; 
-
-// Define a minimal UserType here for file completion, adjust import path as needed
-export type UserType = 'farmer' | 'buyer' | 'delivery' | 'seller'; 
+import { Home, ShoppingBag, MessageSquare, Wallet, Bell, Settings, Menu } from 'lucide-react';
+import type { UserType } from '../../types';
 
 interface SidebarProps {
   userType: UserType;
-  onToggle: () => void; // Added for the new hamburger button
+  onToggle: () => void;
 }
 
 interface NavItem {
@@ -19,46 +17,39 @@ interface NavItem {
 const Sidebar: React.FC<SidebarProps> = ({ userType, onToggle }) => {
   const location = useLocation();
 
-  const getNavItems = (type: UserType): NavItem[] => {
+  const getNavItems = (): NavItem[] => {
+    // Base path depends on user type
+    const basePath = `/dashboard/${userType}`;
     
-    // Dynamically determine the user's main dashboard path
-    let homePath = '/dashboard';
-    if (type === 'farmer') {
-        homePath = '/dashboard/farmer';
-    } else if (type === 'buyer') {
-        homePath = '/dashboard/buyer';
-    } else if (type === 'delivery') {
-        homePath = '/dashboard/delivery';
-    } 
-
     const baseItems: NavItem[] = [
-      { name: 'Home', path: homePath, icon: Home },
-      { name: 'Orders', path: '/dashboard/orders', icon: ShoppingBag },
-      { name: 'Messages', path: '/dashboard/messages', icon: MessageSquare },
+      { name: 'Home', path: basePath, icon: Home },
+      { name: 'Orders', path: `${basePath}/orders`, icon: ShoppingBag },
+      { name: 'Messages', path: `${basePath}/messages`, icon: MessageSquare },
     ];
 
-    if (type === 'farmer' || type === 'delivery') {
-      baseItems.push({ name: 'Wallet', path: '/dashboard/wallet', icon: Wallet });
+    // Add Wallet for farmer and delivery
+    if (userType === 'farmer' || userType === 'delivery') {
+      baseItems.push({ name: 'Wallet', path: `${basePath}/wallet`, icon: Wallet });
     }
 
+    // Add common items
     baseItems.push(
-      { name: 'Notifications', path: '/dashboard/notifications', icon: Bell },
-      { name: 'Settings', path: '/dashboard/settings', icon: Settings }
+      { name: 'Notifications', path: `${basePath}/notifications`, icon: Bell },
+      { name: 'Settings', path: `${basePath}/settings`, icon: Settings }
     );
 
     return baseItems;
   };
 
-  const navItems = getNavItems(userType);
+  const navItems = getNavItems();
 
   const isActive = (path: string): boolean => {
-    // Check if the current path exactly matches the item path
     return location.pathname === path;
   };
 
   return (
     <aside className="bg-white border-r border-gray-200 h-full w-64 fixed left-0 top-0 flex flex-col z-30">
-      {/* Logo/Toggle Button - Replaced Agromate text with Hamburger icon */}
+      {/* Logo */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-center">
         <button 
           onClick={onToggle}
@@ -80,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, onToggle }) => {
                   to={item.path}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive(item.path)
-                      ? 'bg-green-600 text-white shadow-md'
+                      ? 'bg-[--color-primary] text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >

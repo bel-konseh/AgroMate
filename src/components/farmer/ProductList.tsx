@@ -40,10 +40,22 @@ const ProductListPage: React.FC = () => {
     return matchesSearch && matchesCategory;
   });
 
+  const handleView = (productId: string) => {
+    // For now, navigate to shop product detail page
+    navigate(`/product/${productId}`);
+  };
+
+  const handleEdit = (productId: string) => {
+    // Navigate to edit product page (we'll create this later)
+    alert(`Edit product ${productId} - This feature will be implemented with backend`);
+    // navigate(`/dashboard/farmer/products/${productId}/edit`);
+  };
+
   const handleDelete = (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
+      alert(`Product ${productId} deleted successfully! (This will be connected to backend)`);
       console.log('Deleting product:', productId);
-      // TODO: Implement delete functionality
+      // TODO: Implement delete functionality with backend
     }
   };
 

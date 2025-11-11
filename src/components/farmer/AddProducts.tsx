@@ -283,22 +283,24 @@ const AddProductPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4">
+              {/* Submit Buttons */}
+              <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/dashboard/farmer')}
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   variant="primary"
+                  size="lg"
                   loading={isSubmitting}
                   disabled={isSubmitting}
                 >
-                  Add Product
+                  {isSubmitting ? 'Adding Product...' : 'Add Product'}
                 </Button>
               </div>
             </form>
@@ -310,3 +312,4 @@ const AddProductPage: React.FC = () => {
 };
 
 export default AddProductPage;
+
