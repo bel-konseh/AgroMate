@@ -41,14 +41,11 @@ const ProductListPage: React.FC = () => {
   });
 
   const handleView = (productId: string) => {
-    // For now, navigate to shop product detail page
-    navigate(`/product/${productId}`);
+    navigate(`/dashboard/farmer/products/${productId}`);
   };
 
   const handleEdit = (productId: string) => {
-    // Navigate to edit product page (we'll create this later)
-    alert(`Edit product ${productId} - This feature will be implemented with backend`);
-    // navigate(`/dashboard/farmer/products/${productId}/edit`);
+    navigate(`/dashboard/farmer/products/${productId}/edit`);
   };
 
   const handleDelete = (productId: string) => {
@@ -72,7 +69,7 @@ const ProductListPage: React.FC = () => {
             <Button
               variant="primary"
               leftIcon={<Plus className="h-5 w-5" />}
-              onClick={() => navigate('/dashboard/add-product')}
+              onClick={() => navigate('/dashboard/addproduct')}
             >
               Add Product
             </Button>
@@ -177,14 +174,14 @@ const ProductListPage: React.FC = () => {
                       <td className="px-6 py-4">
                         <div className="flex items-center justify-center space-x-2">
                           <button
-                            onClick={() => navigate(`/dashboard/products/${product.id}`)}
+                            onClick={() => handleView(product.id)}
                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                             title="View"
                           >
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => navigate(`/dashboard/products/${product.id}/edit`)}
+                            onClick={() => handleEdit(product.id)}
                             className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
                             title="Edit"
                           >
@@ -211,7 +208,7 @@ const ProductListPage: React.FC = () => {
                 <p className="text-gray-500 mb-4">No products found</p>
                 <Button
                   variant="primary"
-                  onClick={() => navigate('/dashboard/add-product')}
+                  onClick={() => navigate('/dashboard/addproduct')}
                 >
                   Add your first product
                 </Button>
