@@ -15,6 +15,9 @@ import DeliveryDashboardPage from "./components/delivery/DeliveryDashboard"
 import OrdersPage from "./pages/dashboard/OrdersPage"
 import AddProducts from "./components/farmer/AddProducts"
 import BuyerOrdersPage from "./components/buyer/BuyerOrders"
+import ProductListPage from "./components/farmer/ProductList"
+import FarmerOrdersPage from "./components/farmer/FarmerOrders"
+import DeliveryListPage from "./components/delivery/DeliveryList"
 
 const App = ()=>{
 
@@ -32,11 +35,20 @@ const App = ()=>{
         <Route path="shop/" element = {<Shop />} />
         
         {/* routes for the dashboard */}
+        <Route path="dashboard/orders" element={<OrdersPage />} />
+
+
         <Route path="dashboard/farmer" element={<FarmerDashboardPage />} />
+        <Route path="/dashboard/farmer/orders" element={<FarmerOrdersPage />} />
+        <Route path="/dashboard/farmer/products" element={<ProductListPage />} />
+
         <Route path="dashboard/buyer" element={<BuyerDashboardPage />} />
         <Route path="dashboard/buyer/orders" element={<BuyerOrdersPage />} />
+
+
         <Route path="dashboard/delivery" element={<DeliveryDashboardPage />} />
-        <Route path="dashboard/orders" element={<OrdersPage />} />
+        <Route path="/dashboard/delivery/deliveries" element={<DeliveryListPage />} />
+
 
         {/* routes for products */}
         <Route path="addproducts" element={<AddProducts />} />
