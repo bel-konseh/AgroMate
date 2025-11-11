@@ -14,6 +14,7 @@ import BuyerDashboardPage from "./components/buyer/BuyerDashboard"
 import DeliveryDashboardPage from "./components/delivery/DeliveryDashboard"
 import OrdersPage from "./pages/dashboard/OrdersPage"
 import AddProducts from "./components/farmer/AddProducts"
+import BuyerOrdersPage from "./components/buyer/BuyerOrders"
 
 const App = ()=>{
 
@@ -33,6 +34,7 @@ const App = ()=>{
         {/* routes for the dashboard */}
         <Route path="dashboard/farmer" element={<FarmerDashboardPage />} />
         <Route path="dashboard/buyer" element={<BuyerDashboardPage />} />
+        <Route path="dashboard/buyer/orders" element={<BuyerOrdersPage />} />
         <Route path="dashboard/delivery" element={<DeliveryDashboardPage />} />
         <Route path="dashboard/orders" element={<OrdersPage />} />
 
