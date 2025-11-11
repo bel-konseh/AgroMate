@@ -1,5 +1,5 @@
 const locations = ['Bamenda', 'Mbengwi', 'Bafut', 'Bali', 'Santa', 'Ndop', 'Nkwen', 'Batibo'];
-const farmers = [
+let farmers = [
   { id: 'F001', name: 'Nkwen Agro Cooperative' },
   { id: 'F002', name: 'Bamenda Green Farms' },
   { id: 'F003', name: 'Santa Highlands Produce' },

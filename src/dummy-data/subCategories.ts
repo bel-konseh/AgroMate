@@ -1,4 +1,4 @@
-const subcategories: Record<string, string[]> = {
+let subcategories: Record<string, string[]> = {
   cereals: ['Maize', 'Rice', 'Millet'],
   legumes: ['Beans', 'Groundnuts', 'Soybeans'],
   tubers: ['Yams', 'Potatoes', 'Cocoyams', 'Cassava'],

@@ -1,6 +1,6 @@
 import type { Product } from "../types";
 
-export const products: Product[] = [
+let products: Product[] = [
   {
     id: "prd-001",
     farmerId: "F001",
@@ -1006,3 +1006,5 @@ export const products: Product[] = [
   },
 
 ];
+
+export default products
