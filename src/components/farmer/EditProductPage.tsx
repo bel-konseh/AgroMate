@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X } from 'lucide-react';
-import DashboardLayout from '../dashboard/DashboardLayout';
-import Input from '../common/Input';
-import Button from '../common/Button';
+import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import Input from '../../components/common/Input';
+import Button from '../../components/common/Button';
+import { useProducts } from '../../context/ProductContext';
 
 interface ProductFormData {
   name: string;
@@ -20,6 +21,7 @@ interface ProductFormData {
 const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { getProductById, updateProduct } = useProducts();
   
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -53,27 +55,26 @@ const EditProductPage: React.FC = () => {
     dairy: ['Milk', 'Cheese', 'Yogurt', 'Butter'],
   };
 
-  // Load product data
+  // Load product data from context
   useEffect(() => {
-    // Simulate API call to fetch product
-    setTimeout(() => {
-      const mockProduct = {
-        name: 'Huckleberry || Njama Njama',
-        price: '500',
-        description: 'Fresh huckleberry leaves, locally sourced and organic.',
-        category: 'vegetables',
-        subcategory: 'Leafy Greens',
-        stock: '50',
-        isAvailable: true,
-        existingImages: [
-          'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
-        ],
-        newImages: []
-      };
-      setFormData(mockProduct);
+    if (id) {
+      const product = getProductById(id);
+      if (product) {
+        setFormData({
+          name: product.name,
+          price: product.price.toString(),
+          description: product.description,
+          category: product.category,
+          subcategory: product.subcategory,
+          stock: product.stock.toString(),
+          isAvailable: product.isAvailable,
+          existingImages: product.images || [],
+          newImages: []
+        });
+      }
       setIsLoading(false);
-    }, 500);
-  }, [id]);
+    }
+  }, [id, getProductById]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -139,6 +140,8 @@ const EditProductPage: React.FC = () => {
 
     if (!formData.stock.trim()) {
       newErrors.stock = 'Stock is required';
+    } else if (isNaN(Number(formData.stock)) || Number(formData.stock) < 0) {
+      newErrors.stock = 'Please enter a valid stock quantity';
     }
 
     setErrors(newErrors);
@@ -148,19 +151,33 @@ const EditProductPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validate()) {
+    if (!validate() || !id) {
       return;
     }
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Updated product data:', formData);
-      alert('Product updated successfully!');
-      setIsSubmitting(false);
-      navigate(`/dashboard/farmer/products/${id}`);
-    }, 1500);
+    // Convert new images to URLs
+    const newImageUrls = formData.newImages.map((file) => URL.createObjectURL(file));
+    
+    // Combine existing and new images
+    const allImages = [...formData.existingImages, ...newImageUrls];
+
+    // Update product using context
+    updateProduct(id, {
+      name: formData.name,
+      description: formData.description,
+      price: Number(formData.price),
+      category: formData.category,
+      subcategory: formData.subcategory,
+      stock: Number(formData.stock),
+      isAvailable: formData.isAvailable,
+      images: allImages
+    });
+
+    alert('Product updated successfully!');
+    setIsSubmitting(false);
+    navigate(`/dashboard/farmer/products/${id}`);
   };
 
   const handleBack = () => {
@@ -174,6 +191,21 @@ const EditProductPage: React.FC = () => {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[--color-primary] mx-auto mb-4"></div>
             <p className="text-gray-600">Loading product...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!getProductById(id!)) {
+    return (
+      <DashboardLayout userType="farmer">
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto text-center py-16">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Product not found</h2>
+            <Button onClick={() => navigate('/dashboard/farmer/products')}>
+              Back to Products
+            </Button>
           </div>
         </div>
       </DashboardLayout>

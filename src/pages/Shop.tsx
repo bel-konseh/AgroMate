@@ -53,7 +53,7 @@ const Shop: React.FC = () => {
       <section className="bg-gradient-to-br from-[--color-primary] to-[--color-primary-dark] text-white py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Shop Fresh Products</h1>
-          <p className="text-lg text-green-100">
+          <p className="text-lg md:text-xl text-black">
             Browse our selection of fresh agricultural products from local farmers
           </p>
         </div>
@@ -144,7 +144,7 @@ const Shop: React.FC = () => {
 
                 {/* Products Grid */}
                 {sortedProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className=" flex flex-wrap gap-6">
                     {sortedProducts.map(product => (
                       <ProductCard key={product.id} product={product} />
                     ))}

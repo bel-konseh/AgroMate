@@ -1,58 +1,57 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Package } from 'lucide-react';
-import DashboardLayout from '../dashboard/DashboardLayout';
-import Button from '../common/Button';
+import DashboardLayout from '../../components/dashboard/DashboardLayout';
+import Button from '../../components/common/Button';
+// import LoadingSpinner from '../../components/common/LoadingSpinner';
 import { formatCurrency } from '../../utils/helpers';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  subcategory: string;
-  stock: number;
-  images: string[];
-  isAvailable: boolean;
-  createdAt: string;
-}
+import { useProducts } from '../../context/ProductContext';
 
 const ViewProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { getProductById, deleteProduct } = useProducts();
 
-  // Mock product data - Replace with actual API call
-  const product: Product = {
-    id: id || '1',
-    name: 'Huckleberry || Njama Njama',
-    description: 'Fresh huckleberry leaves, locally sourced and organic. Perfect for traditional Cameroonian dishes. Rich in nutrients and vitamins.',
-    price: 500,
-    category: 'vegetables',
-    subcategory: 'Leafy Greens',
-    stock: 50,
-    images: [
-      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
-      'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
-    ],
-    isAvailable: true,
-    createdAt: '2024-01-15'
-  };
+  // Get the actual product from context
+  const product = id ? getProductById(id) : undefined;
 
   const handleEdit = () => {
     navigate(`/dashboard/farmer/products/${id}/edit`);
   };
 
   const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      alert('Product deleted successfully! (This will be connected to backend)');
-      navigate('/dashboard/farmer/products');
+    if (window.confirm('Are you sure you want to delete this product? It will be removed from the shop.')) {
+      if (id) {
+        deleteProduct(id);
+        alert('Product deleted successfully!');
+        navigate('/dashboard/farmer/products');
+      }
     }
   };
 
   const handleBack = () => {
     navigate('/dashboard/farmer/products');
   };
+
+  // Loading state
+  if (!product) {
+    return (
+      <DashboardLayout userType="farmer">
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">Product not found</h2>
+                <p className="text-gray-600 mb-6">The product you're looking for doesn't exist.</p>
+                <Button onClick={handleBack}>Back to Products</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout userType="farmer">
@@ -92,7 +91,7 @@ const ViewProductPage: React.FC = () => {
               {/* Left - Images */}
               <div>
                 <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
-                  {product.images[0] ? (
+                  {product.images && product.images.length > 0 ? (
                     <img
                       src={product.images[0]}
                       alt={product.name}
@@ -106,7 +105,7 @@ const ViewProductPage: React.FC = () => {
                 </div>
                 
                 {/* Thumbnail Gallery */}
-                {product.images.length > 1 && (
+                {product.images && product.images.length > 1 && (
                   <div className="grid grid-cols-4 gap-2">
                     {product.images.map((image, index) => (
                       <div
@@ -182,6 +181,14 @@ const ViewProductPage: React.FC = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Product ID:</span>
                     <span className="font-medium text-gray-900">{product.id}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Farmer:</span>
+                    <span className="font-medium text-gray-900">{product.farmerName}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Location:</span>
+                    <span className="font-medium text-gray-900">{product.location}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Added on:</span>
