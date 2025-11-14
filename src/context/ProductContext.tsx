@@ -1,12 +1,25 @@
-import React, { createContext, useContext, useState, useEffect, } from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  getDocs, 
+  query, 
+  where,
+  orderBy,
+  Timestamp 
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../config/firebase';
 import type{ Product } from '../types';
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updateProduct: (id: string, product: Partial<Product>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>, images: File[]) => Promise<void>;
+  updateProduct: (id: string, product: Partial<Product>, newImages?: File[]) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   getProductById: (id: string) => Product | undefined;
   getProductsByFarmer: (farmerId: string) => Product[];
   loading: boolean;
@@ -14,133 +27,139 @@ interface ProductContextType {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
-// Initial mock products
-const initialProducts: Product[] = [
-  {
-    id: '1',
-    farmerId: 'farmer1',
-    farmerName: "John's Farm",
-    name: 'Huckleberry || Njama Njama',
-    description: 'Fresh huckleberry leaves, locally sourced and organic. Perfect for traditional Cameroonian dishes.',
-    price: 500,
-    originalPrice: 800,
-    currency: 'XAF',
-    category: 'vegetables',
-    subcategory: 'Leafy Greens',
-    images: [
-      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400',
-      'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
-    ],
-    rating: 4.5,
-    reviewCount: 23,
-    stock: 50,
-    isAvailable: true,
-    location: 'Bamenda, Cameroon',
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15')
-  },
-  {
-    id: '2',
-    farmerId: 'farmer2',
-    farmerName: 'Green Valley Farm',
-    name: 'Fresh Tomatoes',
-    description: 'Organic tomatoes, grown without pesticides. Perfect for salads and cooking.',
-    price: 300,
-    originalPrice: 450,
-    currency: 'XAF',
-    category: 'vegetables',
-    subcategory: 'Tomatoes',
-    images: [
-      'https://images.unsplash.com/photo-1546470427-e26264d4e8ec?w=400',
-    ],
-    rating: 4.8,
-    reviewCount: 45,
-    stock: 100,
-    isAvailable: true,
-    location: 'Buea, Cameroon',
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-10')
-  },
-  {
-    id: '3',
-    farmerId: 'farmer1',
-    farmerName: "John's Farm",
-    name: 'Organic Carrots',
-    description: 'Fresh carrots, perfect for salads and cooking.',
-    price: 250,
-    originalPrice: 400,
-    currency: 'XAF',
-    category: 'vegetables',
-    subcategory: 'Root Vegetables',
-    images: [
-      'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400',
-    ],
-    rating: 4.6,
-    reviewCount: 32,
-    stock: 75,
-    isAvailable: true,
-    location: 'Bamenda, Cameroon',
-    createdAt: new Date('2024-01-12'),
-    updatedAt: new Date('2024-01-12')
-  }
-];
-
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load products from localStorage on mount
-  useEffect(() => {
-    const storedProducts = localStorage.getItem('agromate_products');
-    if (storedProducts) {
+  // Upload images to Firebase Storage
+  const uploadImages = async (images: File[], productId: string): Promise<string[]> => {
+    const imageUrls: string[] = [];
+    
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const imageRef = ref(storage, `products/${productId}/${Date.now()}_${image.name}`);
+      
       try {
-        const parsed = JSON.parse(storedProducts);
-        // Convert date strings back to Date objects
-        const productsWithDates = parsed.map((p: any) => ({
-          ...p,
-          createdAt: new Date(p.createdAt),
-          updatedAt: new Date(p.updatedAt)
-        }));
-        setProducts(productsWithDates);
+        await uploadBytes(imageRef, image);
+        const url = await getDownloadURL(imageRef);
+        imageUrls.push(url);
       } catch (error) {
-        console.error('Error loading products:', error);
-        setProducts(initialProducts);
+        console.error('Error uploading image:', error);
       }
-    } else {
-      setProducts(initialProducts);
     }
-    setLoading(false);
+    
+    return imageUrls;
+  };
+
+  // Fetch all products from Firestore
+  const fetchProducts = async () => {
+    try {
+      const productsQuery = query(
+        collection(db, 'products'), 
+        orderBy('createdAt', 'desc')
+      );
+      const querySnapshot = await getDocs(productsQuery);
+      
+      const productsData: Product[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate() || new Date(),
+          updatedAt: data.updatedAt?.toDate() || new Date()
+        } as Product;
+      });
+      
+      setProducts(productsData);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load products on mount
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
-  // Save products to localStorage whenever they change
-  useEffect(() => {
-    if (!loading) {
-      localStorage.setItem('agromate_products', JSON.stringify(products));
+  // Add product to Firestore
+  const addProduct = async (
+    productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
+    images: File[]
+  ) => {
+    try {
+      // First, add product to Firestore to get an ID
+      const docRef = await addDoc(collection(db, 'products'), {
+        ...productData,
+        images: [], // Temporary empty array
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+      });
+
+      // Upload images with the product ID
+      const imageUrls = await uploadImages(images, docRef.id);
+
+      // Update product with image URLs
+      await updateDoc(doc(db, 'products', docRef.id), {
+        images: imageUrls
+      });
+
+      // Refresh products list
+      await fetchProducts();
+    } catch (error) {
+      console.error('Error adding product:', error);
+      throw error;
     }
-  }, [products, loading]);
-
-  const addProduct = (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newProduct: Product = {
-      ...productData,
-      id: Date.now().toString(), // Simple ID generation
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    setProducts(prev => [newProduct, ...prev]);
   };
 
-  const updateProduct = (id: string, productData: Partial<Product>) => {
-    setProducts(prev =>
-      prev.map(product =>
-        product.id === id
-          ? { ...product, ...productData, updatedAt: new Date() }
-          : product
-      )
-    );
+  // Update product in Firestore
+  const updateProduct = async (
+    id: string, 
+    productData: Partial<Product>,
+    newImages?: File[]
+  ) => {
+    try {
+      let imageUrls: string[] = [];
+      
+      // Upload new images if provided
+      if (newImages && newImages.length > 0) {
+        imageUrls = await uploadImages(newImages, id);
+      }
+
+      // Prepare update data
+      const updateData: any = {
+        ...productData,
+        updatedAt: Timestamp.now()
+      };
+
+      // If there are new images, append them to existing ones
+      if (imageUrls.length > 0) {
+        const existingImages = productData.images || [];
+        updateData.images = [...existingImages, ...imageUrls];
+      }
+
+      await updateDoc(doc(db, 'products', id), updateData);
+
+      // Refresh products list
+      await fetchProducts();
+    } catch (error) {
+      console.error('Error updating product:', error);
+      throw error;
+    }
   };
 
-  const deleteProduct = (id: string) => {
-    setProducts(prev => prev.filter(product => product.id !== id));
+  // Delete product from Firestore
+  const deleteProduct = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'products', id));
+      
+      // Remove from local state immediately
+      setProducts(prev => prev.filter(product => product.id !== id));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      throw error;
+    }
   };
 
   const getProductById = (id: string) => {

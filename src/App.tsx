@@ -1,4 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom"
+import { AuthProvider } from "./context/AuthContext"
 import { ProductProvider } from "./context/ProductContext"
 import DashBoard from "./pages/DashBoard"
 import Landing from "./pages/Landing"
@@ -19,10 +20,8 @@ import BuyerOrdersPage from "./components/buyer/BuyerOrders"
 import ProductListPage from "./components/farmer/ProductList"
 import FarmerOrdersPage from "./components/farmer/FarmerOrders"
 import DeliveryListPage from "./components/delivery/DeliveryList"
-// import ViewProductPage from "./pages/dashboard/ViewProductPage"
-import ViewProductPage from "./components/farmer/ViewProductPage" 
+import ViewProductPage from "./components/farmer/ViewProductPage"
 import EditProductPage from "./components/farmer/EditProductPage"
-// import EditProductPage from "./pages/dashboard/EditProductPage"
 
 const App = () => {
 
@@ -60,17 +59,16 @@ const App = () => {
         {/* Product Routes */}
         <Route path="dashboard/addproduct" element={<AddProducts />} />
         <Route path="dashboard/addproduct/:id" element={<AddProducts />} />
-
-
-        <Route path="/dashboard/orders" element={<OrdersPage userType="farmer" />} />
       </Route>
-      
     )
   )
   
   return (
+
     <ProductProvider>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ProductProvider>
   )
 }

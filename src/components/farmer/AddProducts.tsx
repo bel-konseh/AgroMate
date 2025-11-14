@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useProducts } from '../../context/ProductContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ProductFormData {
   name: string;
