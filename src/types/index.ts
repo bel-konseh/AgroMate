@@ -44,6 +44,7 @@ export interface Product {
   location: string;
   createdAt: Date;
   updatedAt: Date;
+  
 }
 
 // Order Types

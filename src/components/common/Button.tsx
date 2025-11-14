@@ -27,12 +27,12 @@ const Button: React.FC<ButtonProps> = ({
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variants: Record<string, string> = {
-    primary: 'bg-[--color-primary] hover:bg-[--color-primary-dark] text-white',
+    primary: 'bg-[--color-primary] hover:bg-[--color-primary-dark] ',
     secondary: 'bg-white hover:bg-gray-50 text-[--color-primary] border-2 border-[--color-primary]',
     accent: 'bg-[--color-accent] hover:bg-[--color-accent-dark] text-white',
-    outline: 'bg-transparent hover:bg-gray-50 text-gray-700 border border-gray-300',
+    outline: ' hover:bg-gray-50 text-gray-700 border border-gray-300',
     danger: 'bg-red-600 hover:bg-red-700 text-white',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700'
+    ghost: ' hover:bg-gray-100 text-gray-700'
   };
   
   const sizes: Record<string, string> = {

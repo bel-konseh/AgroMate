@@ -4,37 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Button from '../../components/common/Button';
 import { formatCurrency } from '../../utils/helpers';
-
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  price: number;
-  stock: number;
-  image: string;
-  isAvailable: boolean;
-}
+import { useProducts } from '../../context/ProductContext';
 
 const ProductListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { getProductsByFarmer, } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Mock products data
-  const products: Product[] = [
-    { id: '1', name: 'Huckleberry || Njama Njama', category: 'vegetables', price: 500, stock: 50, image: '', isAvailable: true },
-    { id: '2', name: 'Fresh Tomatoes', category: 'vegetables', price: 300, stock: 100, image: '', isAvailable: true },
-    { id: '3', name: 'Organic Carrots', category: 'vegetables', price: 250, stock: 75, image: '', isAvailable: true },
-    { id: '4', name: 'Fresh Spinach', category: 'vegetables', price: 400, stock: 60, image: '', isAvailable: true },
-    { id: '5', name: 'Bell Peppers Mix', category: 'vegetables', price: 600, stock: 40, image: '', isAvailable: true },
-    { id: '6', name: 'Cucumbers', category: 'vegetables', price: 200, stock: 80, image: '', isAvailable: true },
-    { id: '7', name: 'Red Onions', category: 'vegetables', price: 350, stock: 90, image: '', isAvailable: true },
-    { id: '8', name: 'Green Beans', category: 'vegetables', price: 450, stock: 55, image: '', isAvailable: true },
-  ];
+  // Get current farmer's products (TODO: Replace with actual farmer ID from auth)
+  const farmerId = 'farmer1';
+  const allProducts = getProductsByFarmer(farmerId);
 
   const categories = ['all', 'vegetables', 'fruits', 'grains', 'herbs'];
 
-  const filteredProducts = products.filter(product => {
+  const filteredProducts = allProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -64,7 +48,7 @@ const ProductListPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">My Products</h1>
-              <p className="text-sm text-gray-600 mt-1">{products.length} total products</p>
+              <p className="text-sm text-gray-600 mt-1">{filteredProducts.length} total products</p>
             </div>
             <Button
               variant="primary"

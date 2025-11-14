@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Package } from 'lucide-react';
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
-import Button from '../../components/common/Button';
+import DashboardLayout from '../dashboard/DashboardLayout';
+import Button from '../common/Button';
 import { formatCurrency } from '../../utils/helpers';
 
 interface Product {

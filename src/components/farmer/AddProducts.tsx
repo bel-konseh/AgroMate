@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
+import { useProducts } from '../../context/ProductContext';
 
 interface ProductFormData {
   name: string;
@@ -16,6 +17,7 @@ interface ProductFormData {
 
 const AddProductPage: React.FC = () => {
   const navigate = useNavigate();
+  const { addProduct } = useProducts();
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     price: '',
@@ -118,13 +120,42 @@ const AddProductPage: React.FC = () => {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Product data:', formData);
-      alert('Product added successfully!');
-      setIsSubmitting(false);
-      navigate('/dashboard/farmer');
-    }, 1500);
+    // Convert images to URLs (in real app, upload to server/cloud storage)
+    const imageUrls = formData.images.map((file) => URL.createObjectURL(file));
+
+    // Add product using context
+    addProduct({
+      farmerId: 'farmer1', // TODO: Replace with actual logged-in farmer ID
+      farmerName: 'Efuncho Emilien', // TODO: Replace with actual farmer name
+      name: formData.name,
+      description: formData.description,
+      price: Number(formData.price),
+      currency: 'XAF',
+      category: formData.category,
+      subcategory: formData.subcategory,
+      images: imageUrls,
+      rating: 0,
+      reviewCount: 0,
+      stock: 100, // Default stock
+      isAvailable: true,
+      location: 'Bamenda, Cameroon' // TODO: Replace with actual location
+    });
+
+    alert('Product added successfully! It will now appear in the shop.');
+    setIsSubmitting(false);
+    
+    // Reset form
+    setFormData({
+      name: '',
+      price: '',
+      description: '',
+      category: '',
+      subcategory: '',
+      images: []
+    });
+    
+    // Navigate to products page
+    navigate('/dashboard/farmer/products');
   };
 
   return (
@@ -312,4 +343,3 @@ const AddProductPage: React.FC = () => {
 };
 
 export default AddProductPage;
-

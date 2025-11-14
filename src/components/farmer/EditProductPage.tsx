@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X } from 'lucide-react';
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
+import DashboardLayout from '../dashboard/DashboardLayout';
+import Input from '../common/Input';
+import Button from '../common/Button';
 
 interface ProductFormData {
   name: string;
