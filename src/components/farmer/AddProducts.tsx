@@ -5,7 +5,8 @@ import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useProducts } from '../../context/ProductContext';
-import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
+// import { useAuth } from '../../context/AuthContext';
 
 interface ProductFormData {
   name: string;
@@ -127,7 +128,7 @@ const AddProductPage: React.FC = () => {
     // Add product using context
     addProduct({
       farmerId: 'farmer1', // TODO: Replace with actual logged-in farmer ID
-      farmerName: 'Efuncho Emilien', // TODO: Replace with actual farmer name
+      farmerName: 'Efuncho Emilien', // TODO:To be  Replace with actual farmer name
       name: formData.name,
       description: formData.description,
       price: Number(formData.price),
@@ -139,7 +140,7 @@ const AddProductPage: React.FC = () => {
       reviewCount: 0,
       stock: 100, // Default stock
       isAvailable: true,
-      location: 'Bamenda, Cameroon' // TODO: Replace with actual location
+      location: 'Bamenda, Cameroon' // TODO: To be Replace with actual location
     });
 
     alert('Product added successfully! It will now appear in the shop.');

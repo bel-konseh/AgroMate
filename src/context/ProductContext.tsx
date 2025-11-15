@@ -7,12 +7,11 @@ import {
   doc, 
   getDocs, 
   query, 
-  where,
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../config/firebase';
+import { db} from '../config/firebase';
 import type{ Product } from '../types';
 
 interface ProductContextType {
