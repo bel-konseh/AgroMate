@@ -7,12 +7,13 @@ import {
   doc, 
   getDocs, 
   query, 
+  where,
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db} from '../config/firebase';
-import type{ Product } from '../types';
+import { db } from '../config/firebase';
+import { uploadMultipleImagesToCloudinary } from '../services/cloudinaryServices';
+import type { Product } from '../types';
 
 interface ProductContextType {
   products: Product[];
@@ -22,6 +23,7 @@ interface ProductContextType {
   getProductById: (id: string) => Product | undefined;
   getProductsByFarmer: (farmerId: string) => Product[];
   loading: boolean;
+  uploading: boolean;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -29,26 +31,7 @@ const ProductContext = createContext<ProductContextType | undefined>(undefined);
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Upload images to Firebase Storage
-  const uploadImages = async (images: File[], productId: string): Promise<string[]> => {
-    const imageUrls: string[] = [];
-    
-    for (let i = 0; i < images.length; i++) {
-      const image = images[i];
-      const imageRef = ref(storage, `products/${productId}/${Date.now()}_${image.name}`);
-      
-      try {
-        await uploadBytes(imageRef, image);
-        const url = await getDownloadURL(imageRef);
-        imageUrls.push(url);
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      }
-    }
-    
-    return imageUrls;
-  };
+  const [uploading, setUploading] = useState(false);
 
   // Fetch all products from Firestore
   const fetchProducts = async () => {
@@ -63,7 +46,20 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         const data = doc.data();
         return {
           id: doc.id,
-          ...data,
+          farmerId: data.farmerId,
+          farmerName: data.farmerName,
+          name: data.name,
+          description: data.description,
+          price: data.price,
+          currency: data.currency,
+          category: data.category,
+          subcategory: data.subcategory,
+          images: data.images || [],
+          rating: data.rating || 0,
+          reviewCount: data.reviewCount || 0,
+          stock: data.stock,
+          isAvailable: data.isAvailable,
+          location: data.location,
           createdAt: data.createdAt?.toDate() || new Date(),
           updatedAt: data.updatedAt?.toDate() || new Date()
         } as Product;
@@ -82,33 +78,48 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     fetchProducts();
   }, []);
 
-  // Add product to Firestore
+  // Add product to Firestore with Cloudinary images
   const addProduct = async (
     productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>,
     images: File[]
   ) => {
+    setUploading(true);
     try {
-      // First, add product to Firestore to get an ID
-      const docRef = await addDoc(collection(db, 'products'), {
-        ...productData,
-        images: [], // Temporary empty array
+      // Upload images to Cloudinary first
+      console.log('Uploading images to Cloudinary...');
+      const imageUrls = await uploadMultipleImagesToCloudinary(images);
+      console.log('Images uploaded:', imageUrls);
+
+      // Add product to Firestore with Cloudinary URLs
+      const productToAdd = {
+        farmerId: productData.farmerId,
+        farmerName: productData.farmerName,
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        currency: productData.currency,
+        category: productData.category,
+        subcategory: productData.subcategory,
+        images: imageUrls,
+        rating: productData.rating || 0,
+        reviewCount: productData.reviewCount || 0,
+        stock: productData.stock,
+        isAvailable: productData.isAvailable,
+        location: productData.location,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
-      });
+      };
 
-      // Upload images with the product ID
-      const imageUrls = await uploadImages(images, docRef.id);
-
-      // Update product with image URLs
-      await updateDoc(doc(db, 'products', docRef.id), {
-        images: imageUrls
-      });
+      const docRef = await addDoc(collection(db, 'products'), productToAdd);
+      console.log('Product added to Firestore with ID:', docRef.id);
 
       // Refresh products list
       await fetchProducts();
     } catch (error) {
       console.error('Error adding product:', error);
       throw error;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -118,12 +129,15 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     productData: Partial<Product>,
     newImages?: File[]
   ) => {
+    setUploading(true);
     try {
       let imageUrls: string[] = [];
       
-      // Upload new images if provided
+      // Upload new images to Cloudinary if provided
       if (newImages && newImages.length > 0) {
-        imageUrls = await uploadImages(newImages, id);
+        console.log('Uploading new images to Cloudinary...');
+        imageUrls = await uploadMultipleImagesToCloudinary(newImages);
+        console.log('New images uploaded:', imageUrls);
       }
 
       // Prepare update data
@@ -139,12 +153,15 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
       }
 
       await updateDoc(doc(db, 'products', id), updateData);
+      console.log('Product updated in Firestore');
 
       // Refresh products list
       await fetchProducts();
     } catch (error) {
       console.error('Error updating product:', error);
       throw error;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -152,6 +169,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const deleteProduct = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'products', id));
+      console.log('Product deleted from Firestore');
       
       // Remove from local state immediately
       setProducts(prev => prev.filter(product => product.id !== id));
@@ -178,7 +196,8 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
         deleteProduct,
         getProductById,
         getProductsByFarmer,
-        loading
+        loading,
+        uploading
       }}
     >
       {children}
