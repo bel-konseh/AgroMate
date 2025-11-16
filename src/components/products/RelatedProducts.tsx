@@ -12,7 +12,7 @@ const RelatedProducts = () => {
           {
             
             Array.from({ length: 10 }).map((_, index) => (
-              <ProductCard key={index} />
+              <ProductCard product={products[index]} key={index} />
             ))
           }
       </div>
@@ -21,7 +21,7 @@ const RelatedProducts = () => {
       <div className='flex gap-4 overflow-scroll lg:pl-4'>
           {
             fruits.map((product) => (
-              <ProductCard key={product.id} name={product.name} price={product.price} />
+              <ProductCard key={product.id} product={product}/>
             ))
           }
       </div>
@@ -30,7 +30,7 @@ const RelatedProducts = () => {
       <div className='flex gap-4 overflow-scroll lg:pl-4'>
           {
             vegetables.map((product) => (
-              <ProductCard key={product.id} name={product.name} price={product.price} />
+              <ProductCard key={product.id} product={product} />
             ))
           }
       </div>
