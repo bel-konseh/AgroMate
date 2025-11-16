@@ -1,6 +1,7 @@
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom"
 import { AuthProvider } from "./context/AuthContext"
 import { ProductProvider } from "./context/ProductContext"
+import ProtectedRoute from "./components/ProtectedRoute"
 import DashBoard from "./pages/DashBoard"
 import Landing from "./pages/Landing"
 import Layout from "./pages/Layout"
@@ -28,43 +29,97 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route path="/" element={<Layout />}>
+        {/* Public Routes */}
         <Route path="" element={<Landing />} />
-        <Route path="dashboard/" element={<DashBoard />} />
         <Route path="about/" element={<AboutUs />} />
         <Route path="contact/" element={<Contact />} />
         <Route path="details/" element={<Details />} />
-        <Route path="checkout/" element={<Checkout />} />
+        <Route path="shop/" element={<Shop />} />
         <Route path="login/" element={<Login />} />
         <Route path="signup/" element={<Signup />} />
-        <Route path="shop/" element={<Shop />} />
         
-        {/* routes for the dashboard */}
-        <Route path="dashboard/orders" element={<OrdersPage />} />
+        {/* Protected Routes - Generic Dashboard */}
+        <Route path="dashboard/" element={
+          <ProtectedRoute>
+            <DashBoard />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/orders" element={
+          <ProtectedRoute>
+            <OrdersPage />
+          </ProtectedRoute>
+        } />
+        <Route path="checkout/" element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        } />
 
-        {/* Farmer Routes */}
-        <Route path="dashboard/farmer" element={<FarmerDashboardPage />} />
-        <Route path="dashboard/farmer/orders" element={<FarmerOrdersPage />} />
-        <Route path="dashboard/farmer/products" element={<ProductListPage />} />
-        <Route path="dashboard/farmer/products/:id" element={<ViewProductPage />} />
-        <Route path="dashboard/farmer/products/:id/edit" element={<EditProductPage />} />
+        {/* Farmer Protected Routes */}
+        <Route path="dashboard/farmer" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <FarmerDashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/farmer/orders" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <FarmerOrdersPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/farmer/products" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <ProductListPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/farmer/products/:id" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <ViewProductPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/farmer/products/:id/edit" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <EditProductPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/addproduct" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <AddProducts />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/addproduct/:id" element={
+          <ProtectedRoute allowedUserTypes={['farmer']}>
+            <AddProducts />
+          </ProtectedRoute>
+        } />
 
-        {/* Buyer Routes */}
-        <Route path="dashboard/buyer" element={<BuyerDashboardPage />} />
-        <Route path="dashboard/buyer/orders" element={<BuyerOrdersPage />} />
+        {/* Buyer Protected Routes */}
+        <Route path="dashboard/buyer" element={
+          <ProtectedRoute allowedUserTypes={['buyer']}>
+            <BuyerDashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/buyer/orders" element={
+          <ProtectedRoute allowedUserTypes={['buyer']}>
+            <BuyerOrdersPage />
+          </ProtectedRoute>
+        } />
 
-        {/* Delivery Routes */}
-        <Route path="dashboard/delivery" element={<DeliveryDashboardPage />} />
-        <Route path="dashboard/delivery/deliveries" element={<DeliveryListPage />} />
-
-        {/* Product Routes */}
-        <Route path="dashboard/addproduct" element={<AddProducts />} />
-        <Route path="dashboard/addproduct/:id" element={<AddProducts />} />
+        {/* Delivery Protected Routes */}
+        <Route path="dashboard/delivery" element={
+          <ProtectedRoute allowedUserTypes={['delivery']}>
+            <DeliveryDashboardPage />
+          </ProtectedRoute>
+        } />
+        <Route path="dashboard/delivery/deliveries" element={
+          <ProtectedRoute allowedUserTypes={['delivery']}>
+            <DeliveryListPage />
+          </ProtectedRoute>
+        } />
       </Route>
     )
   )
   
   return (
-
     <ProductProvider>
       <AuthProvider>
         <RouterProvider router={router} />
