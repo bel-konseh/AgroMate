@@ -1,7 +1,7 @@
-
+import { useState } from "react";
 import  QuantitySelector from "./QuantitySelector";
 const ProductGrid = () => {
-
+const [quantity, setQuantity] = useState(1);
     return (
     <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-md p-6 mb-8">
       <div className="flex flex-col lg:flex-row gap-8 items-center">
@@ -49,9 +49,9 @@ const ProductGrid = () => {
           <div className='flex flex-col md:flex-row gap-4 items-center lg:gap-11'>
                 <div className="flex items-center gap-4 ">
                 <QuantitySelector
-                quantity={1}
-                onIncrement={()=>{}}
-                onDecrement={()=>{}}
+                quantity={quantity}
+                onIncrement={()=>{setQuantity(quantity + 1)}}
+                onDecrement={()=>{setQuantity(quantity > 1 ? quantity - 1 : 1)}}
                 />
                 </div>
             
