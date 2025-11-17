@@ -12,6 +12,7 @@ import Checkout from "./pages/Checkout"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Shop from "./pages/Shop"
+import Settings from "./pages/Setting"
 import FarmerDashboardPage from "./components/farmer/FarmerDashboard"
 import BuyerDashboardPage from "./components/buyer/BuyerDashboard"
 import DeliveryDashboardPage from "./components/delivery/DeliveryDashboard"
@@ -115,6 +116,26 @@ const App = () => {
             <DeliveryListPage />
           </ProtectedRoute>
         } />
+
+
+       
+        {/* Settings Routes - Add for each user type */}
+      <Route path="dashboard/farmer/settings" element={
+        <ProtectedRoute allowedUserTypes={['farmer']}>
+          <Settings />
+        </ProtectedRoute>
+      } />
+      <Route path="dashboard/buyer/settings" element={
+        <ProtectedRoute allowedUserTypes={['buyer']}>
+          <Settings />
+        </ProtectedRoute>
+      } />
+      <Route path="dashboard/delivery/settings" element={
+        <ProtectedRoute allowedUserTypes={['delivery']}>
+          <Settings />
+        </ProtectedRoute>
+      } />
+
       </Route>
     )
   )

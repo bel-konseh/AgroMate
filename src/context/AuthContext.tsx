@@ -17,7 +17,8 @@ interface UserData {
   firstName: string;
   lastName: string;
   userType: UserType;
-  phone?: string;
+    phone?: string;
+    avatar?: string;
   location?: string;
   createdAt: Date;
 }

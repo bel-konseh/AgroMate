@@ -1,24 +1,53 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, Bell, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Menu, Bell, ChevronDown, LogOut, Settings, User } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
 const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 
-
 interface DashboardHeaderProps {
-  userName?: string;
-  userAvatar?: string;
-  // onMenuClick is now used for both mobile toggle and desktop collapse
-  onMenuClick?: () => void; 
+  onMenuClick?: () => void;
 }
 
-const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
-  userName = 'Mukem Maxcel',
-  userAvatar,
-  onMenuClick
-}) => {
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ onMenuClick }) => {
+  const { userData, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const userName = userData ? `${userData.firstName} ${userData.lastName}` : 'User';
+  const userAvatar = userData?.avatar;
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
+
+  const handleSettingsClick = () => {
+    setIsDropdownOpen(false);
+    const userType = userData?.userType || 'buyer';
+    navigate(`/dashboard/${userType}/settings`);
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 sticky top-0 z-20">
-      {/* Menu Button - Visible on ALL screens (including desktop) now */}
+      {/* Menu Button */}
       <button 
         onClick={onMenuClick}
         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -31,36 +60,82 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       <div className="flex items-center space-x-4">
         {/* Notifications */}
         <Link 
-          to="/dashboard/notifications"
+          to={`/dashboard/${userData?.userType}/notifications`}
           className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <Bell className="h-5 w-5 text-gray-600" />
           <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
         </Link>
 
-        {/* User Info */}
-        <div className="flex items-center space-x-3">
-          <div className="text-right hidden sm:block">
-            <p className="text-sm font-medium text-gray-900">{userName}</p>
-          </div>
-          
-          {/* User Avatar */}
-          {userAvatar ? (
-            <img 
-              src={userAvatar} 
-              alt={userName}
-              className="h-10 w-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-sm font-semibold text-gray-600">
-                {getInitials(userName)}
-              </span>
+        {/* User Info with Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors"
+          >
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-medium text-gray-900">{userName}</p>
+              <p className="text-xs text-gray-500 capitalize">{userData?.userType}</p>
+            </div>
+            
+            {/* User Avatar */}
+            {userAvatar ? (
+              <img 
+                src={userAvatar} 
+                alt={userName}
+                className="h-10 w-10 rounded-full object-cover border-2 border-gray-200"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center border-2 border-gray-200">
+                <span className="text-sm font-semibold text-white">
+                  {getInitials(userName)}
+                </span>
+              </div>
+            )}
+
+            {/* Dropdown Arrow */}
+            <ChevronDown className={`h-4 w-4 text-gray-400 hidden sm:block transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+
+          {/* Dropdown Menu */}
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              {/* User Info in Dropdown (Mobile) */}
+              <div className="px-4 py-3 border-b border-gray-200 sm:hidden">
+                <p className="text-sm font-medium text-gray-900">{userName}</p>
+                <p className="text-xs text-gray-500">{userData?.email}</p>
+              </div>
+
+              {/* Profile Link */}
+              <button
+                onClick={handleSettingsClick}
+                className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <User className="h-4 w-4" />
+                <span>View Profile</span>
+              </button>
+
+              {/* Settings Link */}
+              <button
+                onClick={handleSettingsClick}
+                className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
+              </button>
+
+              <hr className="my-1 border-gray-200" />
+
+              {/* Logout */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
             </div>
           )}
-
-          {/* Dropdown Arrow */}
-          <ChevronDown className="h-4 w-4 text-gray-400 hidden sm:block" />
         </div>
       </div>
     </header>
