@@ -4,8 +4,11 @@ import Hero from "../components/Hero"
 
 function Landing() {
   return (
-    <main className="w-full mt-16 md:mt-20">
-      <Hero />
+    <main className="w-screen mt-16 md:mt-20 flex flex-col">
+      <div className=" ">
+         <Hero />
+      </div>
+     
       <div className=" w-full h-[523px] bg-[#B6CD27] flex flex-col justify-center items-center p-12">
         <div className="flex flex-col md:flex-row h-[387px] w-1088px] justify-center items-center">
           <img src="/src/assets/images/computer.png" alt=""  className=" w-72 lg:w-[581px] lg:h-[387px]"/>
