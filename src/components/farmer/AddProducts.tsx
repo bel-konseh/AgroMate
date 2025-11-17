@@ -5,8 +5,7 @@ import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Input from '../../components/common/Input';
 import Button from '../../components/common/Button';
 import { useProducts } from '../../context/ProductContext';
-// import { useAuth } from '../../context/AuthContext';
-// import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ProductFormData {
   name: string;
@@ -14,18 +13,22 @@ interface ProductFormData {
   description: string;
   category: string;
   subcategory: string;
+  stock: string;
   images: File[];
 }
 
 const AddProductPage: React.FC = () => {
   const navigate = useNavigate();
-  const { addProduct } = useProducts();
+  const { addProduct, uploading } = useProducts();
+  const { userData } = useAuth();
+  
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     price: '',
     description: '',
     category: '',
     subcategory: '',
+    stock: '100',
     images: []
   });
   const [errors, setErrors] = useState<Partial<ProductFormData>>({});
@@ -65,6 +68,7 @@ const AddProductPage: React.FC = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
+      console.log('📸 [AddProduct] Images selected:', files.length, files);
       setFormData(prev => ({
         ...prev,
         images: [...prev.images, ...files]
@@ -80,6 +84,7 @@ const AddProductPage: React.FC = () => {
   };
 
   const validate = (): boolean => {
+    console.log('🔍 [AddProduct] Validating form...');
     const newErrors: Partial<ProductFormData> = {};
 
     if (!formData.name.trim()) {
@@ -104,61 +109,117 @@ const AddProductPage: React.FC = () => {
       newErrors.subcategory = 'Please select a subcategory';
     }
 
+    if (!formData.stock.trim()) {
+      newErrors.stock = 'Stock is required';
+    } else if (isNaN(Number(formData.stock)) || Number(formData.stock) < 0) {
+      newErrors.stock = 'Please enter a valid stock quantity';
+    }
+
     if (formData.images.length === 0) {
-      newErrors.images = [] as any;
+      console.log('❌ [AddProduct] No images uploaded');
       alert('Please upload at least one product image');
+      return false;
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const isValid = Object.keys(newErrors).length === 0;
+    console.log(isValid ? '✅ [AddProduct] Validation passed' : '❌ [AddProduct] Validation failed:', newErrors);
+    return isValid;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('🚀 [AddProduct] Form submitted');
+    console.log('📝 [AddProduct] Current form data:', formData);
 
     if (!validate()) {
+      console.log('❌ [AddProduct] Validation failed - stopping submission');
       return;
     }
 
+    if (!userData) {
+      console.log('❌ [AddProduct] No user data available');
+      alert('You must be logged in to add products');
+      return;
+    }
+
+    console.log('👤 [AddProduct] User data:', {
+      uid: userData.uid,
+      name: `${userData.firstName} ${userData.lastName}`,
+      email: userData.email,
+      userType: userData.userType
+    });
+
     setIsSubmitting(true);
+    console.log('⏳ [AddProduct] Setting isSubmitting to true');
 
-    // Convert images to URLs (in real app, upload to server/cloud storage)
-    const imageUrls = formData.images.map((file) => URL.createObjectURL(file));
+    try {
+      const productData = {
+        farmerId: userData.uid,
+        farmerName: `${userData.firstName} ${userData.lastName}`,
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        currency: 'XAF',
+        category: formData.category,
+        subcategory: formData.subcategory,
+        images: [], // Will be set by the context after upload
+        rating: 0,
+        reviewCount: 0,
+        stock: Number(formData.stock),
+        isAvailable: true,
+        location: userData.location || 'Bamenda, Cameroon'
+      };
 
-    // Add product using context
-    addProduct({
-      farmerId: 'farmer1', // TODO: Replace with actual logged-in farmer ID
-      farmerName: 'Efuncho Emilien', // TODO:To be  Replace with actual farmer name
-      name: formData.name,
-      description: formData.description,
-      price: Number(formData.price),
-      currency: 'XAF',
-      category: formData.category,
-      subcategory: formData.subcategory,
-      images: imageUrls,
-      rating: 0,
-      reviewCount: 0,
-      stock: 100, // Default stock
-      isAvailable: true,
-      location: 'Bamenda, Cameroon' // TODO: To be Replace with actual location
-    });
+      console.log('📦 [AddProduct] Product data prepared:', productData);
+      console.log('🖼️ [AddProduct] Images to upload:', formData.images.length, 'files');
+      console.log('🖼️ [AddProduct] Image details:', formData.images.map(f => ({ name: f.name, size: f.size, type: f.type })));
 
-    alert('Product added successfully! It will now appear in the shop.');
-    setIsSubmitting(false);
-    
-    // Reset form
-    setFormData({
-      name: '',
-      price: '',
-      description: '',
-      category: '',
-      subcategory: '',
-      images: []
-    });
-    
-    // Navigate to products page
-    navigate('/dashboard/farmer/products');
+      console.log('📞 [AddProduct] Calling addProduct function...');
+      await addProduct(productData, formData.images);
+
+      console.log('✅ [AddProduct] Product added successfully!');
+      alert('Product added successfully!');
+      
+      // Reset form
+      console.log('🔄 [AddProduct] Resetting form...');
+      setFormData({
+        name: '',
+        price: '',
+        description: '',
+        category: '',
+        subcategory: '',
+        stock: '100',
+        images: []
+      });
+      
+      // Navigate to products page
+      console.log('🔄 [AddProduct] Navigating to products page...');
+      navigate('/dashboard/farmer/products');
+    } catch (error: any) {
+      console.error('❌ [AddProduct] Error adding product:', error);
+      console.error('❌ [AddProduct] Error type:', typeof error);
+      console.error('❌ [AddProduct] Error message:', error?.message);
+      console.error('❌ [AddProduct] Error stack:', error?.stack);
+      
+      if (error?.response) {
+        console.error('❌ [AddProduct] Error response:', error.response);
+      }
+      
+      alert(`Failed to add product: ${error?.message || 'Unknown error'}`);
+    } finally {
+      console.log('🏁 [AddProduct] Finally block - setting isSubmitting to false');
+      setIsSubmitting(false);
+    }
   };
+
+  // Log when component mounts
+  React.useEffect(() => {
+    console.log('🎬 [AddProduct] Component mounted');
+    console.log('👤 [AddProduct] User data on mount:', userData);
+    console.log('🔧 [AddProduct] addProduct function:', typeof addProduct);
+    console.log('🔧 [AddProduct] uploading state:', uploading);
+  }, []);
 
   return (
     <DashboardLayout userType="farmer">
@@ -184,17 +245,30 @@ const AddProductPage: React.FC = () => {
                 required
               />
 
-              {/* Price */}
-              <Input
-                label="Product Price"
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="e.g., 500"
-                error={errors.price}
-                required
-              />
+              {/* Price and Stock */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input
+                  label="Product Price (XAF)"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  placeholder="e.g., 500"
+                  error={errors.price}
+                  required
+                />
+
+                <Input
+                  label="Stock Quantity"
+                  name="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  placeholder="e.g., 100"
+                  error={errors.stock}
+                  required
+                />
+              </div>
 
               {/* Description */}
               <div>
@@ -281,8 +355,11 @@ const AddProductPage: React.FC = () => {
                     multiple
                     onChange={handleImageUpload}
                     className="hidden"
+                    disabled={uploading || isSubmitting}
                   />
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[--color-primary] transition-colors cursor-pointer">
+                  <div className={`border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[--color-primary] transition-colors ${
+                    uploading || isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}>
                     <Upload className="h-12 w-12 text-gray-400 mx-auto mb-3" />
                     <p className="text-sm text-gray-600 mb-1">
                       Click to upload or drag and drop
@@ -304,7 +381,8 @@ const AddProductPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => removeImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          disabled={uploading || isSubmitting}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"
                         >
                           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -316,13 +394,23 @@ const AddProductPage: React.FC = () => {
                 )}
               </div>
 
+              {/* Upload Progress */}
+              {uploading && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    <span className="text-sm text-blue-700">Uploading images to cloud storage...</span>
+                  </div>
+                </div>
+              )}
+
               {/* Submit Buttons */}
               <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => navigate('/dashboard/farmer')}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || uploading}
                 >
                   Cancel
                 </Button>
@@ -330,10 +418,10 @@ const AddProductPage: React.FC = () => {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
+                  loading={isSubmitting || uploading}
+                  disabled={isSubmitting || uploading}
                 >
-                  {isSubmitting ? 'Adding Product...' : 'Add Product'}
+                  {uploading ? 'Uploading Images...' : isSubmitting ? 'Adding Product...' : 'Add Product'}
                 </Button>
               </div>
             </form>

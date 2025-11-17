@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Upload, X } from 'lucide-react';
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
-import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
+import DashboardLayout from '../dashboard/DashboardLayout';
+import Input from '../common/Input';
+import Button from '../common/Button';
 import { useProducts } from '../../context/ProductContext';
 
 interface ProductFormData {
@@ -21,7 +21,7 @@ interface ProductFormData {
 const EditProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getProductById, updateProduct } = useProducts();
+  const { getProductById, updateProduct, uploading } = useProducts();
   
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
@@ -144,6 +144,11 @@ const EditProductPage: React.FC = () => {
       newErrors.stock = 'Please enter a valid stock quantity';
     }
 
+    if (formData.existingImages.length === 0 && formData.newImages.length === 0) {
+      alert('Please keep at least one image or add new images');
+      return false;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -157,27 +162,30 @@ const EditProductPage: React.FC = () => {
 
     setIsSubmitting(true);
 
-    // Convert new images to URLs
-    const newImageUrls = formData.newImages.map((file) => URL.createObjectURL(file));
-    
-    // Combine existing and new images
-    const allImages = [...formData.existingImages, ...newImageUrls];
+    try {
+      await updateProduct(
+        id, 
+        {
+          name: formData.name,
+          description: formData.description,
+          price: Number(formData.price),
+          category: formData.category,
+          subcategory: formData.subcategory,
+          stock: Number(formData.stock),
+          isAvailable: formData.isAvailable,
+        },
+        formData.newImages,
+        formData.existingImages
+      );
 
-    // Update product using context
-    updateProduct(id, {
-      name: formData.name,
-      description: formData.description,
-      price: Number(formData.price),
-      category: formData.category,
-      subcategory: formData.subcategory,
-      stock: Number(formData.stock),
-      isAvailable: formData.isAvailable,
-      images: allImages
-    });
-
-    alert('Product updated successfully!');
-    setIsSubmitting(false);
-    navigate(`/dashboard/farmer/products/${id}`);
+      alert('Product updated successfully!');
+      navigate(`/dashboard/farmer/products/${id}`);
+    } catch (error: any) {
+      console.error('Error updating product:', error);
+      alert('Failed to update product. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -367,7 +375,8 @@ const EditProductPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => removeExistingImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                            disabled={uploading || isSubmitting}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -385,8 +394,11 @@ const EditProductPage: React.FC = () => {
                     multiple
                     onChange={handleImageUpload}
                     className="hidden"
+                    disabled={uploading || isSubmitting}
                   />
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[--color-primary] transition-colors cursor-pointer">
+                  <div className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[--color-primary] transition-colors ${
+                    uploading || isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}>
                     <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-600">Add more images</p>
                   </div>
@@ -394,26 +406,40 @@ const EditProductPage: React.FC = () => {
 
                 {/* New Images Preview */}
                 {formData.newImages.length > 0 && (
-                  <div className="mt-4 grid grid-cols-3 gap-4">
-                    {formData.newImages.map((file, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={URL.createObjectURL(file)}
-                          alt={`New ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeNewImage(index)}
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    <p className="text-xs text-gray-500 mb-2">New Images to Upload</p>
+                    <div className="grid grid-cols-3 gap-4">
+                      {formData.newImages.map((file, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt={`New ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeNewImage(index)}
+                            disabled={uploading || isSubmitting}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 disabled:opacity-50"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
+
+              {/* Upload Progress */}
+              {uploading && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                    <span className="text-sm text-blue-700">Uploading images to cloud storage...</span>
+                  </div>
+                </div>
+              )}
 
               {/* Submit Buttons */}
               <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
@@ -421,7 +447,7 @@ const EditProductPage: React.FC = () => {
                   type="button"
                   variant="outline"
                   onClick={handleBack}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || uploading}
                 >
                   Cancel
                 </Button>
@@ -429,10 +455,10 @@ const EditProductPage: React.FC = () => {
                   type="submit"
                   variant="primary"
                   size="lg"
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
+                  loading={isSubmitting || uploading}
+                  disabled={isSubmitting || uploading}
                 >
-                  {isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+                  {uploading ? 'Uploading Images...' : isSubmitting ? 'Saving Changes...' : 'Save Changes'}
                 </Button>
               </div>
             </form>

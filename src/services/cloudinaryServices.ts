@@ -10,12 +10,17 @@ interface CloudinaryResponse {
 }
 
 export const uploadImageToCloudinary = async (file: File): Promise<string> => {
+  console.log('☁️ [Cloudinary] Uploading image:', file.name, 'Size:', file.size);
+  console.log('☁️ [Cloudinary] Cloud name:', CLOUDINARY_CLOUD_NAME);
+  console.log('☁️ [Cloudinary] Upload preset:', CLOUDINARY_UPLOAD_PRESET);
+  
   try {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
     formData.append('folder', 'agromate/products');
 
+    console.log('☁️ [Cloudinary] Making request to Cloudinary API...');
     const response = await axios.post<CloudinaryResponse>(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
       formData,
@@ -26,25 +31,33 @@ export const uploadImageToCloudinary = async (file: File): Promise<string> => {
       }
     );
 
+    console.log('✅ [Cloudinary] Upload successful:', response.data.secure_url);
     return response.data.secure_url;
   } catch (error) {
-    console.error('Error uploading to Cloudinary:', error);
+    console.error('❌ [Cloudinary] Error uploading image:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Response status:', error.response?.status);
+      console.error('Response data:', error.response?.data);
+    }
     throw new Error('Failed to upload image');
   }
 };
 
 export const uploadMultipleImagesToCloudinary = async (files: File[]): Promise<string[]> => {
+  console.log(`☁️ [Cloudinary] Uploading ${files.length} images...`);
   try {
     const uploadPromises = files.map(file => uploadImageToCloudinary(file));
     const imageUrls = await Promise.all(uploadPromises);
+    console.log('✅ [Cloudinary] All images uploaded successfully:', imageUrls);
     return imageUrls;
   } catch (error) {
-    console.error('Error uploading multiple images:', error);
+    console.error('❌ [Cloudinary] Error uploading multiple images:', error);
     throw new Error('Failed to upload images');
   }
 };
 
 export const deleteImageFromCloudinary = async (publicId: string): Promise<void> => {
+  console.log('🗑️ [Cloudinary] Deleting image:', publicId);
   try {
     await axios.post(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`,
@@ -57,8 +70,9 @@ export const deleteImageFromCloudinary = async (publicId: string): Promise<void>
         }
       }
     );
+    console.log('✅ [Cloudinary] Image deleted successfully');
   } catch (error) {
-    console.error('Error deleting image from Cloudinary:', error);
+    console.error('❌ [Cloudinary] Error deleting image:', error);
     throw new Error('Failed to delete image');
   }
 };

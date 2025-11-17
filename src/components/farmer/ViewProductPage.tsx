@@ -1,30 +1,38 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Edit, Trash2, Package } from 'lucide-react';
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
-import Button from '../../components/common/Button';
-// import LoadingSpinner from '../../components/common/LoadingSpinner';
+import DashboardLayout from '../dashboard/DashboardLayout';
+import Button from '../common/Button';
 import { formatCurrency } from '../../utils/helpers';
 import { useProducts } from '../../context/ProductContext';
+import { useState } from 'react';
 
 const ViewProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getProductById, deleteProduct } = useProducts();
+  const { getProductById, deleteProduct, loading } = useProducts();
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Get the actual product from context
   const product = id ? getProductById(id) : undefined;
 
   const handleEdit = () => {
     navigate(`/dashboard/farmer/products/${id}/edit`);
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this product? It will be removed from the shop.')) {
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this product? It will be removed from the shop permanently.')) {
       if (id) {
-        deleteProduct(id);
-        alert('Product deleted successfully!');
-        navigate('/dashboard/farmer/products');
+        try {
+          setIsDeleting(true);
+          await deleteProduct(id);
+          alert('Product deleted successfully!');
+          navigate('/dashboard/farmer/products');
+        } catch (error) {
+          console.error('Error deleting product:', error);
+          alert('Failed to delete product. Please try again.');
+          setIsDeleting(false);
+        }
       }
     }
   };
@@ -34,6 +42,24 @@ const ViewProductPage: React.FC = () => {
   };
 
   // Loading state
+  if (loading) {
+    return (
+      <DashboardLayout userType="farmer">
+        <div className="p-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[--color-primary] mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading product...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Product not found
   if (!product) {
     return (
       <DashboardLayout userType="farmer">
@@ -72,6 +98,7 @@ const ViewProductPage: React.FC = () => {
                 variant="outline"
                 leftIcon={<Edit className="h-4 w-4" />}
                 onClick={handleEdit}
+                disabled={isDeleting}
               >
                 Edit
               </Button>
@@ -79,8 +106,10 @@ const ViewProductPage: React.FC = () => {
                 variant="danger"
                 leftIcon={<Trash2 className="h-4 w-4" />}
                 onClick={handleDelete}
+                loading={isDeleting}
+                disabled={isDeleting}
               >
-                Delete
+                {isDeleting ? 'Deleting...' : 'Delete'}
               </Button>
             </div>
           </div>
@@ -93,7 +122,7 @@ const ViewProductPage: React.FC = () => {
                 <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
                   {product.images && product.images.length > 0 ? (
                     <img
-                      src={product.images[0]}
+                      src={product.images[selectedImage]}
                       alt={product.name}
                       className="w-full h-full object-cover"
                     />
@@ -110,7 +139,10 @@ const ViewProductPage: React.FC = () => {
                     {product.images.map((image, index) => (
                       <div
                         key={index}
-                        className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-75 transition-opacity"
+                        onClick={() => setSelectedImage(index)}
+                        className={`aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer transition-all ${
+                          selectedImage === index ? 'ring-2 ring-[--color-primary]' : 'hover:opacity-75'
+                        }`}
                       >
                         <img
                           src={image}
@@ -156,7 +188,7 @@ const ViewProductPage: React.FC = () => {
                   <div className="flex items-center space-x-3">
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${
+                        className={`h-2 rounded-full transition-all ${
                           product.stock > 30 ? 'bg-green-500' : product.stock > 10 ? 'bg-yellow-500' : 'bg-red-500'
                         }`}
                         style={{ width: `${Math.min((product.stock / 100) * 100, 100)}%` }}
@@ -193,7 +225,21 @@ const ViewProductPage: React.FC = () => {
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Added on:</span>
                     <span className="font-medium text-gray-900">
-                      {new Date(product.createdAt).toLocaleDateString()}
+                      {new Date(product.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Last updated:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(product.updatedAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </span>
                   </div>
                 </div>

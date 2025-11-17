@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../components/dashboard/DashboardLayout';
-import Button from '../../components/common/Button';
+import DashboardLayout from '../dashboard/DashboardLayout';
+import Button from '../common/Button';
 import { formatCurrency } from '../../utils/helpers';
 import { useProducts } from '../../context/ProductContext';
+import { useAuth } from '../../context/AuthContext';
 
 const ProductListPage: React.FC = () => {
   const navigate = useNavigate();
-  const { getProductsByFarmer, } = useProducts();
+  const { userData } = useAuth();
+  const { getProductsByFarmer, deleteProduct, loading } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Get current farmer's products (TODO: Replace with actual farmer ID from auth)
-  const farmerId = 'farmer1';
-  const allProducts = getProductsByFarmer(farmerId);
+  // Get current farmer's products
+  const allProducts = userData ? getProductsByFarmer(userData.uid) : [];
 
-  const categories = ['all', 'vegetables', 'fruits', 'grains', 'herbs'];
+  const categories = ['all', 'vegetables', 'fruits', 'grains', 'herbs', 'dairy'];
 
   const filteredProducts = allProducts.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -32,13 +34,33 @@ const ProductListPage: React.FC = () => {
     navigate(`/dashboard/farmer/products/${productId}/edit`);
   };
 
-  const handleDelete = (productId: string) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      alert(`Product ${productId} deleted successfully! (This will be connected to backend)`);
-      console.log('Deleting product:', productId);
-      // TODO: Implement delete functionality with backend
+  const handleDelete = async (productId: string) => {
+    if (window.confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      try {
+        setIsDeleting(productId);
+        await deleteProduct(productId);
+        alert('Product deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert('Failed to delete product. Please try again.');
+      } finally {
+        setIsDeleting(null);
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <DashboardLayout userType="farmer">
+        <div className="p-6 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[--color-primary] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout userType="farmer">
@@ -62,9 +84,9 @@ const ProductListPage: React.FC = () => {
           {/* Filters */}
           <div className="bg-white rounded-lg shadow-sm p-4">
             <div className="flex flex-col sm:flex-row gap-4">
-              {/* Search */}
+              {/* Search - FIXED: Added space between input and type */}
               <div className="flex-1">
-                <input
+                <input 
                   type="text"
                   placeholder="Search products..."
                   value={searchQuery}
@@ -123,8 +145,18 @@ const ProductListPage: React.FC = () => {
                     <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="h-10 w-10 bg-gray-200 rounded-lg flex-shrink-0">
-                            {/* Product image placeholder */}
+                          <div className="h-10 w-10 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                            {product.images && product.images.length > 0 ? (
+                              <img 
+                                src={product.images[0]} 
+                                alt={product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-gray-400 text-xs">
+                                No image
+                              </div>
+                            )}
                           </div>
                           <span className="text-sm font-medium text-gray-900">{product.name}</span>
                         </div>
@@ -139,7 +171,7 @@ const ProductListPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`text-sm font-medium ${
-                          product.stock > 20 ? 'text-green-600' : 'text-orange-600'
+                          product.stock > 20 ? 'text-green-600' : product.stock > 0 ? 'text-orange-600' : 'text-red-600'
                         }`}>
                           {product.stock}
                         </span>
@@ -168,15 +200,21 @@ const ProductListPage: React.FC = () => {
                             onClick={() => handleEdit(product.id)}
                             className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors"
                             title="Edit"
+                            disabled={isDeleting === product.id}
                           >
                             <Edit className="h-4 w-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(product.id)}
-                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50"
                             title="Delete"
+                            disabled={isDeleting === product.id}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {isDeleting === product.id ? (
+                              <div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full"></div>
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </button>
                         </div>
                       </td>
@@ -189,7 +227,11 @@ const ProductListPage: React.FC = () => {
             {/* Empty State */}
             {filteredProducts.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">No products found</p>
+                <p className="text-gray-500 mb-4">
+                  {searchQuery || selectedCategory !== 'all' 
+                    ? 'No products found matching your filters' 
+                    : 'No products yet'}
+                </p>
                 <Button
                   variant="primary"
                   onClick={() => navigate('/dashboard/addproduct')}
