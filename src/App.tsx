@@ -7,7 +7,6 @@ import Landing from "./pages/Landing"
 import Layout from "./pages/Layout"
 import AboutUs from "./pages/AboutUs"
 import Contact from "./pages/Contact"
-import Details from "./pages/Details"
 import Checkout from "./pages/Checkout"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
@@ -24,6 +23,7 @@ import FarmerOrdersPage from "./components/farmer/FarmerOrders"
 import DeliveryListPage from "./components/delivery/DeliveryList"
 import ViewProductPage from "./components/farmer/ViewProductPage"
 import EditProductPage from "./components/farmer/EditProductPage"
+import ProductDetailsPage from "./pages/ProductDetailsPage"
 
 const App = () => {
 
@@ -34,7 +34,8 @@ const App = () => {
         <Route path="" element={<Landing />} />
         <Route path="about/" element={<AboutUs />} />
         <Route path="contact/" element={<Contact />} />
-        <Route path="details/" element={<Details />} />
+        {/* routes for shop */}
+        <Route path="shop/product/:id" element={<ProductDetailsPage />} />
         <Route path="shop/" element={<Shop />} />
         <Route path="login/" element={<Login />} />
         <Route path="signup/" element={<Signup />} />
