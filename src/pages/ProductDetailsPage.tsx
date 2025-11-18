@@ -237,7 +237,7 @@ const ProductDetailsPage: React.FC = () => {
                   size="lg"
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
-                  className="flex-1"
+                  className="flex-1 bg-green-500 hover:bg-green-600"
                 >
                   Buy Now
                 </Button>
@@ -247,40 +247,35 @@ const ProductDetailsPage: React.FC = () => {
                   leftIcon={<ShoppingCart className="h-5 w-5" />}
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className="flex-1"
+                  className="flex-1 border-green-500 text-green hover:bg-green-50"
                 >
                   Add to Cart
                 </Button>
               </div>
 
               {/* Additional Info */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="mt-6 pt-6 border-t border-gray-200 ">
+                <div className="flex gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Category:</span>
                     <span className="ml-2 font-medium text-gray-900 capitalize">
                       {product.category}
                     </span>
                   </div>
-                  <div>
+                  <div className='hidden md:flex'>
                     <span className="text-gray-500">Subcategory:</span>
                     <span className="ml-2 font-medium text-gray-900">
                       {product.subcategory}
                     </span>
                   </div>
-                  <div>
+                  <div className='flex'>
                     <span className="text-gray-500">Location:</span>
                     <span className="ml-2 font-medium text-gray-900 flex items-center">
                       <MapPin className="h-3 w-3 mr-1" />
                       {product.location}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-gray-500">SKU:</span>
-                    <span className="ml-2 font-medium text-gray-900">
-                      {product.id.slice(0, 8).toUpperCase()}
-                    </span>
-                  </div>
+                
                 </div>
               </div>
             </div>
@@ -294,7 +289,7 @@ const ProductDetailsPage: React.FC = () => {
               <h2 className="text-2xl font-bold text-gray-900">Related Products</h2>
               <Link
                 to={`/shop?category=${product.category}`}
-                className="text-[--color-primary] hover:text-[--color-primary-dark] font-medium text-sm"
+                className="text-green-500 hover:text-[--color-primary-dark] font-medium text-sm"
               >
                 View More
               </Link>

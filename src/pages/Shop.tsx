@@ -3,8 +3,6 @@ import { Search, SlidersHorizontal } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 import Input from '../components/common/Input';
 import { useProducts } from '../context/ProductContext';
-// import LoadingSpinner from '../components/common/LoadingSpinner';
-// import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Shop: React.FC = () => {
   const { products, loading } = useProducts();
@@ -50,10 +48,11 @@ const Shop: React.FC = () => {
   return (
     <div>
       {/* Header Section */}
-      <section className="bg-gradient-to-br from-[--color-primary] to-[--color-primary-dark] text-white py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Shop Fresh Products</h1>
-          <p className="text-lg md:text-xl text-black">
+      <section className="relative bg-gradient-to-br from-[--color-primary] to-[--color-primary-dark] text-white py-12">
+        <div className="container mx-auto px-4 mt-40 text-center space-y-9" >
+          <h1 className="text-4xl md:text-5xl font-bold text-green-400 ">Shop Fresh Products With <span className="text-yellow-500">Exciting Offers!</span></h1>
+          <p className='text-xl italic text-green-300 animate-bounce [animation-duration:2s] [animation-timing-function:ease-in-out]'>Agromate is here for you!</p>
+          <p className="text-green-500  text-3xl">
             Browse our selection of fresh agricultural products from local farmers
           </p>
         </div>
@@ -144,7 +143,7 @@ const Shop: React.FC = () => {
 
                 {/* Products Grid */}
                 {sortedProducts.length > 0 ? (
-                  <div className=" flex flex-wrap gap-6">
+                  <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {sortedProducts.map(product => (
                       <ProductCard key={product.id} product={product} />
                     ))}
@@ -154,9 +153,9 @@ const Shop: React.FC = () => {
                     <div className="text-gray-400 mb-4">
                       <Search className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No products matches your search.</h3>
                     <p className="text-gray-600">
-                      Try adjusting your filters or search query
+                      Try adjusting your search or filter to find what you're looking for.
                     </p>
                   </div>
                 )}
