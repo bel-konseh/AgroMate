@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, ShoppingCart, Star, MapPin, User } from 'lucide-react';
 import { useProducts } from '../context/ProductContext';
+import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import Button from '../components/common/Button';
 import ProductCard from '../components/products/ProductCard';
 import { formatCurrency } from '../utils/helpers';
@@ -10,6 +12,8 @@ const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getProductById, products } = useProducts();
+  const { userData } = useAuth();
+  const { addToCart } = useCart();
   
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -27,7 +31,6 @@ const ProductDetailsPage: React.FC = () => {
     );
   }
 
-  // Get related products from the same category
   const relatedProducts = products
     .filter(p => p.category === product.category && p.id !== product.id && p.isAvailable)
     .slice(0, 6);
@@ -40,14 +43,54 @@ const ProductDetailsPage: React.FC = () => {
     }
   };
 
+  const checkAuth = () => {
+    if (!userData) {
+      alert('Please login to purchase products');
+      navigate('/login');
+      return false;
+    }
+    if (userData.userType !== 'buyer') {
+      alert('Only buyers can purchase products. Please signup as a buyer.');
+      navigate('/signup');
+      return false;
+    }
+    return true;
+  };
+
   const handleAddToCart = () => {
-    // TODO: Implement cart functionality
+    if (!checkAuth()) return;
+
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: product.images[0] || '',
+      farmerId: product.farmerId,
+      farmerName: product.farmerName,
+      stock: product.stock
+    };
+
+    addToCart(cartItem);
     alert(`Added ${quantity} ${product.name}(s) to cart!`);
   };
 
   const handleBuyNow = () => {
-    // TODO: Implement direct checkout
-    alert(`Proceeding to checkout with ${quantity} ${product.name}(s)`);
+    if (!checkAuth()) return;
+
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image: product.images[0] || '',
+      farmerId: product.farmerId,
+      farmerName: product.farmerName,
+      stock: product.stock
+    };
+
+    addToCart(cartItem);
+    navigate('/checkout');
   };
 
   return (
@@ -67,7 +110,6 @@ const ProductDetailsPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
           className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
@@ -81,7 +123,6 @@ const ProductDetailsPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
             {/* Left - Images */}
             <div>
-              {/* Main Image */}
               <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-4">
                 {product.images && product.images.length > 0 ? (
                   <img
@@ -96,7 +137,6 @@ const ProductDetailsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Thumbnail Gallery */}
               {product.images && product.images.length > 1 && (
                 <div className="grid grid-cols-6 gap-2">
                   {product.images.map((image, index) => (
@@ -122,10 +162,8 @@ const ProductDetailsPage: React.FC = () => {
 
             {/* Right - Product Info */}
             <div className="flex flex-col">
-              {/* Product Name */}
               <h1 className="text-3xl font-bold text-gray-900 mb-3">{product.name}</h1>
 
-              {/* Farmer Info */}
               <div className="flex items-center space-x-2 text-gray-600 mb-4">
                 <User className="h-4 w-4" />
                 <span className="text-sm">{product.farmerName}</span>
@@ -134,7 +172,6 @@ const ProductDetailsPage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Rating */}
               <div className="flex items-center space-x-2 mb-6">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
@@ -153,7 +190,6 @@ const ProductDetailsPage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Price */}
               <div className="mb-6">
                 <div className="flex items-baseline space-x-2">
                   <span className="text-4xl font-bold text-[--color-primary]">
@@ -168,7 +204,6 @@ const ProductDetailsPage: React.FC = () => {
                 <p className="text-sm text-gray-500 mt-1">per Pack</p>
               </div>
 
-              {/* Stock Status */}
               <div className="mb-6">
                 <div className="flex items-center space-x-2">
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
@@ -183,13 +218,11 @@ const ProductDetailsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Description */}
               <div className="mb-6 flex-1">
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
               </div>
 
-              {/* Quantity Selector */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Quantity
@@ -230,14 +263,13 @@ const ProductDetailsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   variant="primary"
                   size="lg"
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
-                  className="flex-1 bg-green-500 hover:bg-green-600"
+                  className="flex-1"
                 >
                   Buy Now
                 </Button>
@@ -247,49 +279,53 @@ const ProductDetailsPage: React.FC = () => {
                   leftIcon={<ShoppingCart className="h-5 w-5" />}
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className="flex-1 border-green-500 text-green hover:bg-green-50"
+                  className="flex-1"
                 >
                   Add to Cart
                 </Button>
               </div>
 
-              {/* Additional Info */}
-              <div className="mt-6 pt-6 border-t border-gray-200 ">
-                <div className="flex gap-4 text-sm">
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <span className="text-gray-500">Category:</span>
                     <span className="ml-2 font-medium text-gray-900 capitalize">
                       {product.category}
                     </span>
                   </div>
-                  <div className='hidden md:flex'>
+                  <div>
                     <span className="text-gray-500">Subcategory:</span>
                     <span className="ml-2 font-medium text-gray-900">
                       {product.subcategory}
                     </span>
                   </div>
-                  <div className='flex'>
+                  <div>
                     <span className="text-gray-500">Location:</span>
                     <span className="ml-2 font-medium text-gray-900 flex items-center">
                       <MapPin className="h-3 w-3 mr-1" />
                       {product.location}
                     </span>
                   </div>
-                
+                  <div>
+                    <span className="text-gray-500">SKU:</span>
+                    <span className="ml-2 font-medium text-gray-900">
+                      {product.id.slice(0, 8).toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Related Products Section */}
+        {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">Related Products</h2>
               <Link
                 to={`/shop?category=${product.category}`}
-                className="text-green-500 hover:text-[--color-primary-dark] font-medium text-sm"
+                className="text-[--color-primary] hover:text-[--color-primary-dark] font-medium text-sm"
               >
                 View More
               </Link>
