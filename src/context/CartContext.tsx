@@ -34,8 +34,15 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (userData && userData.userType === 'buyer') {
       const savedCart = localStorage.getItem(`cart_${userData.uid}`);
       if (savedCart) {
-        setCartItems(JSON.parse(savedCart));
+        try {
+          setCartItems(JSON.parse(savedCart));
+        } catch (error) {
+          console.error('Error loading cart:', error);
+        }
       }
+    } else {
+      // Clear cart if not a buyer
+      setCartItems([]);
     }
   }, [userData]);
 
@@ -51,14 +58,12 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const existingItem = prev.find(i => i.productId === item.productId);
       
       if (existingItem) {
-        // Update quantity if item exists
         return prev.map(i =>
           i.productId === item.productId
             ? { ...i, quantity: Math.min(i.quantity + item.quantity, i.stock) }
             : i
         );
       } else {
-        // Add new item
         return [...prev, item];
       }
     });
