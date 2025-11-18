@@ -8,6 +8,7 @@ import Layout from "./pages/Layout"
 import AboutUs from "./pages/AboutUs"
 import Contact from "./pages/Contact"
 import Checkout from "./pages/Checkout"
+import CartPage from "./pages/CartPage"
 import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Shop from "./pages/Shop"
@@ -59,6 +60,20 @@ const App = () => {
           </ProtectedRoute>
         } />
 
+        
+        {/* Cart Route - Only for buyers */}
+    <Route path="cart" element={
+      <ProtectedRoute allowedUserTypes={['buyer']}>
+        <CartPage />
+      </ProtectedRoute>
+    } />
+
+    {/* Checkout Route - Only for buyers */}
+    <Route path="checkout" element={
+      <ProtectedRoute allowedUserTypes={['buyer']}>
+        <Checkout />
+      </ProtectedRoute>
+    } />
         {/* Farmer Protected Routes */}
         <Route path="dashboard/farmer" element={
           <ProtectedRoute allowedUserTypes={['farmer']}>
