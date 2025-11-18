@@ -24,6 +24,8 @@ import DeliveryListPage from "./components/delivery/DeliveryList"
 import ViewProductPage from "./components/farmer/ViewProductPage"
 import EditProductPage from "./components/farmer/EditProductPage"
 import ProductDetailsPage from "./pages/ProductDetailsPage"
+import { CartProvider } from "./context/CartContext"
+
 
 const App = () => {
 
@@ -144,7 +146,9 @@ const App = () => {
   return (
     <ProductProvider>
       <AuthProvider>
+        <CartProvider>
         <RouterProvider router={router} />
+        </CartProvider>
       </AuthProvider>
     </ProductProvider>
   )
