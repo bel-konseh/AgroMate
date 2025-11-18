@@ -4,97 +4,77 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import StatusBadge from '../../components/common/StatusBadge';
 import { formatCurrency, getInitials } from '../../utils/helpers';
-import type { OrderStatus } from '../../types';
-
-interface OrderStats {
-  label: string;
-  count: number;
-  icon: React.ReactNode;
-  color: string;
-  bgColor: string;
-}
-
-interface RecentOrder {
-  id: string;
-  orderId: string;
-  date: string;
-  farmerName: string;
-  products: string[];
-  price: number;
-  status: OrderStatus;
-}
+import { useAuth } from '../../context/AuthContext';
+// import { useOrders } from  '../../context/OrderContext';
+import { useOrders } from  '../../context/OderContext';
 
 const BuyerDashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { userData } = useAuth();
+  const { orders, loading } = useOrders();
 
-  const orderStats: OrderStats[] = [
+  const userName = userData ? `${userData.firstName} ${userData.lastName}` : 'User';
+
+  // Calculate stats from real orders
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter(o => o.status === 'pending' || o.status === 'confirmed').length;
+  const inTransitOrders = orders.filter(o => o.status === 'delivering' || o.status === 'preparing').length;
+  const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+
+  const orderStats = [
     { 
       label: 'Total Orders', 
-      count: 24, 
+      count: totalOrders, 
       icon: <ShoppingBag className="h-8 w-8" />,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50'
     },
     { 
       label: 'Pending', 
-      count: 3, 
+      count: pendingOrders, 
       icon: <Package className="h-8 w-8" />,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-50'
     },
     { 
       label: 'In Transit', 
-      count: 5, 
+      count: inTransitOrders, 
       icon: <Truck className="h-8 w-8" />,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50'
     },
     { 
       label: 'Delivered', 
-      count: 16, 
+      count: deliveredOrders, 
       icon: <CheckCircle className="h-8 w-8" />,
       color: 'text-green-600',
       bgColor: 'bg-green-50'
     },
   ];
 
-  const recentOrders: RecentOrder[] = [
-    { 
-      id: '1', 
-      orderId: 'ORD-001', 
-      date: '16/01/2025', 
-      farmerName: "John's Farm",
-      products: ['Huckleberry', 'Tomatoes'], 
-      price: 2500, 
-      status: 'delivering' 
-    },
-    { 
-      id: '2', 
-      orderId: 'ORD-002', 
-      date: '15/01/2025', 
-      farmerName: 'Green Valley Farm',
-      products: ['Carrots', 'Spinach'], 
-      price: 1800, 
-      status: 'delivered' 
-    },
-    { 
-      id: '3', 
-      orderId: 'ORD-003', 
-      date: '14/01/2025', 
-      farmerName: 'Sunrise Farm',
-      products: ['Bell Peppers'], 
-      price: 3200, 
-      status: 'delivered' 
-    },
-  ];
+  // Get recent orders (last 3)
+  const recentOrders = orders.slice(0, 3);
+
+  if (loading) {
+    return (
+      <DashboardLayout userType="buyer">
+        <div className="p-6 flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[--color-primary] mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading dashboard...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
-    <DashboardLayout userType="buyer" userName="Mary Johnson">
+    <DashboardLayout userType="buyer">
       <div className="p-6">
         <div className="max-w-7xl mx-auto space-y-6">
           {/* Welcome Section */}
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, Mary!</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, {userName.split(' ')[0]}!</h1>
             <p className="text-gray-600">Here's what's happening with your orders today.</p>
           </div>
 
@@ -136,7 +116,7 @@ const BuyerDashboardPage: React.FC = () => {
                   <div 
                     key={order.id}
                     className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => navigate(`/dashboard/buyer/orders/${order.id}`)}
+                    onClick={() => navigate(`/dashboard/buyer/orders`)}
                   >
                     <div className="flex items-center justify-between">
                       {/* Left - Order Info */}
@@ -151,21 +131,27 @@ const BuyerDashboardPage: React.FC = () => {
                         {/* Order Details */}
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <span className="text-sm font-semibold text-gray-900">{order.orderId}</span>
+                            <span className="text-sm font-semibold text-gray-900">
+                              {order.id.slice(0, 8).toUpperCase()}
+                            </span>
                             <span className="text-xs text-gray-500">•</span>
-                            <span className="text-xs text-gray-500">{order.date}</span>
+                            <span className="text-xs text-gray-500">
+                              {new Date(order.createdAt).toLocaleDateString()}
+                            </span>
                           </div>
                           <p className="text-sm text-gray-600 mb-1">
                             From <span className="font-medium text-gray-900">{order.farmerName}</span>
                           </p>
-                          <p className="text-sm text-gray-500">{order.products.join(', ')}</p>
+                          <p className="text-sm text-gray-500">
+                            {order.items.map(item => item.productName).join(', ')}
+                          </p>
                         </div>
                       </div>
 
                       {/* Right - Price and Status */}
                       <div className="text-right">
                         <p className="text-lg font-bold text-gray-900 mb-2">
-                          {formatCurrency(order.price)}
+                          {formatCurrency(order.totalAmount)}
                         </p>
                         <StatusBadge status={order.status} />
                       </div>
@@ -175,7 +161,7 @@ const BuyerDashboardPage: React.FC = () => {
               ) : (
                 <div className="p-12 text-center">
                   <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">You don't have any recent orders</p>
+                  <p className="text-gray-500 mb-4">You don't have any orders yet</p>
                   <button 
                     onClick={() => navigate('/shop')}
                     className="text-[--color-primary] hover:text-[--color-primary-dark] font-medium"
