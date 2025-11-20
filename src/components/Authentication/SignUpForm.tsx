@@ -65,7 +65,9 @@ const SignUpForm = () => {
           navigate('/dashboard/delivery')
           break
         default:
-          navigate('/dashboard')
+          alert('Account created, but user type is unrecognized.')
+          navigate('/signup')
+          break
       }
     } catch (err: any) {
       console.error('Signup error:', err)
