@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({ userType, onToggle }) => {
                   to={item.path}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
                     isActive(item.path)
-                      ? 'bg-[--color-primary] text-white'
+                      ? 'bg-green-200  font-medium'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >

@@ -26,6 +26,7 @@ import ViewProductPage from "./components/farmer/ViewProductPage"
 import EditProductPage from "./components/farmer/EditProductPage"
 import ProductDetailsPage from "./pages/ProductDetailsPage"
 import { CartProvider } from "./context/CartContext"
+import { OrderProvider } from "./context/OderContext"
 
 
 const App = () => {
@@ -162,7 +163,9 @@ const App = () => {
     <ProductProvider>
       <AuthProvider>
         <CartProvider>
-        <RouterProvider router={router} />
+          <OrderProvider>
+            <RouterProvider router={router} />
+          </OrderProvider>
         </CartProvider>
       </AuthProvider>
     </ProductProvider>
