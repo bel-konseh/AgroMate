@@ -269,7 +269,7 @@ const ProductDetailsPage: React.FC = () => {
                   size="lg"
                   onClick={handleBuyNow}
                   disabled={product.stock === 0}
-                  className="flex-1"
+                  className="flex-1 bg-green-500 hover:bg-green-600 focus:ring-green-300"
                 >
                   Buy Now
                 </Button>
@@ -279,7 +279,7 @@ const ProductDetailsPage: React.FC = () => {
                   leftIcon={<ShoppingCart className="h-5 w-5" />}
                   onClick={handleAddToCart}
                   disabled={product.stock === 0}
-                  className="flex-1"
+                  className="flex-1 border-green-500 text-green-500 hover:bg-green-50 focus:ring-green-300"
                 >
                   Add to Cart
                 </Button>
@@ -304,12 +304,6 @@ const ProductDetailsPage: React.FC = () => {
                     <span className="ml-2 font-medium text-gray-900 flex items-center">
                       <MapPin className="h-3 w-3 mr-1" />
                       {product.location}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">SKU:</span>
-                    <span className="ml-2 font-medium text-gray-900">
-                      {product.id.slice(0, 8).toUpperCase()}
                     </span>
                   </div>
                 </div>
