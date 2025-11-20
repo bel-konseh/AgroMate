@@ -126,7 +126,8 @@ const Shop: React.FC = () => {
               <div className="lg:col-span-3">
                 {/* Search Bar */}
                 <div className="mb-6">
-                  <Input
+                    <Input
+                      name='search'
                     placeholder="Search products..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}

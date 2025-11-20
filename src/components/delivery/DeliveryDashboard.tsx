@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Truck, Plus } from 'lucide-react'; // Added Truck icon
+import { Truck} from 'lucide-react';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 import Button from '../../components/common/Button';
 import { formatCurrency } from '../../utils/helpers';

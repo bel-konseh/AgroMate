@@ -7,11 +7,14 @@ export type UserType = 'farmer' | 'buyer' | 'delivery' | 'seller';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   userType: UserType;
+  userName?: string; 
 }
 
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
   userType,
+ 
+  
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 

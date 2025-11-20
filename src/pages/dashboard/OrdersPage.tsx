@@ -20,7 +20,7 @@ interface Order {
 
 const OrdersPage: React.FC<OrdersPageProps> = ({ userType = 'farmer' }) => {
 //   const navigate = useNavigate();
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatus] = useState<string>('all');
 
   // Mock orders data
   const orders: Order[] = [
