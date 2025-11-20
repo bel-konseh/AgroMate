@@ -1,13 +1,13 @@
 import React, { useState,  } from 'react';
 import { Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../components/dashboard/DashboardLayout';
 // import StatusBadge from '../../components/common/StatusBadge';
 import { formatCurrency, getInitials } from '../../utils/helpers';
 import { useOrders } from '../../context/OderContext';
 
 const FarmerOrdersPage: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { orders, loading, updateOrderStatus } = useOrders();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [updatingOrderId, setUpdatingOrderId] = useState<string | null>(null);
